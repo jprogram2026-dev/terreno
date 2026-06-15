@@ -1,0 +1,2564 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Terreno — Estudo de mercado para novos negócios no Brasil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #F4EFE6;
+    --bg-raised: #FBF7EF;
+    --ink: #1C1917;
+    --ink-soft: #3B3731;
+    --muted: #6B6459;
+    --line: #D9D1C2;
+    --line-soft: #E6DFD0;
+    --accent: #B8512C;
+    --accent-deep: #8A3B1F;
+    --green: #3E4D3A;
+    --green-soft: #6B7D5F;
+    --amber: #C68A2E;
+    --red: #A8412E;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    font-weight: 400;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(184, 81, 44, 0.04), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(62, 77, 58, 0.05), transparent 40%);
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 40px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Typography */
+  h1, h2, h3 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    color: var(--ink);
+  }
+  h1 { font-size: clamp(44px, 7vw, 96px); font-variation-settings: "opsz" 144; }
+  h2 { font-size: clamp(32px, 4vw, 52px); font-variation-settings: "opsz" 72; }
+  h3 { font-size: 22px; font-variation-settings: "opsz" 24; }
+
+  .mono { font-family: 'IBM Plex Mono', monospace; }
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .italic { font-style: italic; font-variation-settings: "opsz" 144; }
+
+  /* Nav */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(244, 239, 230, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  nav .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 18px;
+    padding-bottom: 18px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+  }
+  .brand-mark {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    position: relative;
+  }
+  .brand-mark::after {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    border-radius: 50%;
+    background: var(--bg);
+  }
+  .nav-links { display: flex; gap: 32px; }
+  .nav-links a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 400;
+    transition: color .2s;
+  }
+  .nav-links a:hover { color: var(--accent); }
+  @media (max-width: 720px) { .nav-links { display: none; } }
+
+  /* Hero */
+  .hero { padding: 100px 0 80px; position: relative; }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: end;
+  }
+  .hero h1 { margin-bottom: 8px; }
+  .hero h1 .line { display: block; }
+  .hero h1 .accent { color: var(--accent); font-style: italic; }
+  .hero-sub {
+    font-size: 18px;
+    color: var(--ink-soft);
+    max-width: 420px;
+    margin-top: 28px;
+  }
+  .hero-cta {
+    margin-top: 36px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    background: var(--ink);
+    color: var(--bg);
+    border: none;
+    padding: 16px 28px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    border-radius: 0;
+    transition: all .2s;
+  }
+  .btn:hover:not(:disabled) { background: var(--accent); transform: translateY(-2px); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--ink);
+    padding: 15px 27px;
+  }
+  .btn-ghost:hover { background: var(--ink); color: var(--bg); transform: translateY(-2px); }
+
+  .hero-side { padding-bottom: 8px; }
+  .hero-quote {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: "opsz" 72;
+    font-size: 20px;
+    font-style: italic;
+    line-height: 1.4;
+    color: var(--ink-soft);
+    border-left: 2px solid var(--accent);
+    padding-left: 20px;
+    margin-bottom: 20px;
+  }
+  .hero-quote-source {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding-left: 22px;
+  }
+  @media (max-width: 860px) {
+    .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+  }
+
+  /* Stats strip */
+  .stats {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 40px 0;
+    margin-top: 40px;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+  }
+  .stat .num {
+    font-family: 'Fraunces', serif;
+    font-size: 48px;
+    font-weight: 400;
+    font-variation-settings: "opsz" 72;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .stat .label {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  @media (max-width: 720px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .stat .num { font-size: 36px; }
+  }
+
+  /* Section */
+  section { padding: 100px 0; }
+  .section-head { margin-bottom: 56px; max-width: 680px; }
+  .section-head .eyebrow { margin-bottom: 16px; display: block; }
+  .section-head p {
+    margin-top: 20px;
+    color: var(--ink-soft);
+    font-size: 17px;
+    max-width: 560px;
+  }
+
+  /* Steps */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  .step {
+    background: var(--bg);
+    padding: 36px 32px;
+    position: relative;
+  }
+  .step-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    margin-bottom: 20px;
+    letter-spacing: 0.1em;
+  }
+  .step h3 { margin-bottom: 12px; }
+  .step p { color: var(--muted); font-size: 15px; }
+  @media (max-width: 720px) { .steps { grid-template-columns: 1fr; } }
+
+  /* Simulator */
+  .simulator {
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    padding: 48px;
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    margin-bottom: 32px;
+  }
+  .field { display: flex; flex-direction: column; }
+  .field label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+  .field select, .field input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--ink);
+    padding: 10px 0;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 16px;
+    color: var(--ink);
+    outline: none;
+    border-radius: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path fill='%231C1917' d='M0 0l5 6 5-6z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    padding-right: 20px;
+  }
+  .field input { background-image: none; padding-right: 0; }
+  .field select:focus, .field input:focus { border-color: var(--accent); }
+  @media (max-width: 720px) {
+    .simulator { padding: 28px; }
+    .form-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Macro grid */
+  .macro-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+  }
+  .macro-item { display: flex; flex-direction: column; }
+  .macro-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .macro-value {
+    font-family: 'Fraunces', serif;
+    font-size: 36px;
+    font-variation-settings: "opsz" 72;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .macro-value.accent { color: var(--accent); }
+  .macro-note {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 10px;
+    line-height: 1.4;
+  }
+  @media (max-width: 720px) {
+    .macro-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .macro-value { font-size: 28px; }
+  }
+
+  /* Field status */
+  .field-status {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    margin-left: 6px;
+    font-weight: 400;
+    text-transform: none;
+  }
+  .field-status.ok { color: var(--green); }
+  .field-status.err { color: var(--red); }
+
+  /* Source tags */
+  .source-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 100px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 500;
+  }
+  .source-tag::before {
+    content: "";
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .source-tag.live { color: var(--green); background: rgba(62, 77, 58, 0.1); }
+  .source-tag.estimated { color: var(--amber); background: rgba(198, 138, 46, 0.12); }
+  .source-tag.simulated { color: var(--muted); background: rgba(107, 100, 89, 0.1); }
+
+  /* Loading state */
+  .btn.loading { opacity: 0.7; pointer-events: none; }
+  .btn.loading::after {
+    content: "";
+    display: inline-block;
+    width: 10px; height: 10px;
+    border: 1.5px solid var(--bg);
+    border-right-color: transparent;
+    border-radius: 50%;
+    margin-left: 10px;
+    animation: spin .8s linear infinite;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Form error */
+  .form-error {
+    background: rgba(168, 65, 46, 0.08);
+    border-left: 3px solid var(--red);
+    padding: 12px 16px;
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--red);
+    display: none;
+  }
+  .form-error.visible { display: block; }
+
+  /* Report */
+  #report { display: none; }
+  #report.visible { display: block; animation: fade-up .7s ease-out; }
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .report-header {
+    border-top: 2px solid var(--ink);
+    padding-top: 32px;
+    margin-bottom: 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+  .report-header h2 { max-width: 600px; }
+  .report-meta {
+    font-size: 13px;
+    color: var(--muted);
+    text-align: right;
+    font-family: 'IBM Plex Mono', monospace;
+    line-height: 1.8;
+  }
+  /* Download panel — seção dedicada abaixo do relatório */
+  .download-panel {
+    margin-top: 48px;
+    padding: 36px 40px;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .download-text { max-width: 540px; }
+  .download-text h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 24px;
+    font-variation-settings: "opsz" 48;
+    color: var(--ink);
+  }
+  .download-text p {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  @media (max-width: 720px) {
+    .download-panel { padding: 28px; flex-direction: column; align-items: flex-start; }
+  }
+
+  .report-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 24px;
+  }
+  .card {
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    padding: 28px;
+  }
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .card-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .card-big {
+    font-family: 'Fraunces', serif;
+    font-size: 56px;
+    font-variation-settings: "opsz" 72;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .card-big.accent { color: var(--accent); }
+  .card-sub { color: var(--muted); font-size: 13px; margin-top: 10px; }
+
+  .span-6 { grid-column: span 6; }
+  .span-4 { grid-column: span 4; }
+  .span-8 { grid-column: span 8; }
+  .span-12 { grid-column: span 12; }
+  @media (max-width: 900px) {
+    .span-6, .span-4, .span-8 { grid-column: span 12; }
+  }
+
+  /* Pill */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px solid currentColor;
+    border-radius: 100px;
+  }
+  .pill-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .pill.low { color: var(--green); }
+  .pill.mid { color: var(--amber); }
+  .pill.high { color: var(--red); }
+  .pill.pos { color: var(--green); }
+
+  /* Indicators */
+  .indicator-list { display: flex; flex-direction: column; gap: 18px; }
+  .indicator {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px dotted var(--line);
+  }
+  .indicator:last-child { border-bottom: none; }
+  .indicator-name { font-size: 15px; color: var(--ink-soft); }
+  .indicator-name small {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 3px;
+  }
+
+  /* Bars */
+  .bar-track {
+    height: 4px;
+    background: var(--line);
+    position: relative;
+    margin-top: 14px;
+  }
+  .bar-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0;
+    transition: width 1s ease-out;
+  }
+  .bar-fill.green { background: var(--green); }
+  .bar-fill.amber { background: var(--amber); }
+  .bar-fill.red { background: var(--red); }
+
+  /* Chart */
+  .chart { width: 100%; height: 220px; }
+  .chart .grid-line { stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 4; }
+  .chart .axis { fill: var(--muted); font-size: 10px; font-family: 'IBM Plex Mono', monospace; }
+  .chart .trend-line {
+    stroke: var(--accent);
+    stroke-width: 2;
+    fill: none;
+    stroke-dasharray: 800;
+    stroke-dashoffset: 800;
+    animation: draw 2s ease-out forwards;
+  }
+  .chart .trend-area { fill: var(--accent); opacity: 0.08; }
+  .chart .point { fill: var(--accent); }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+
+  /* Compare bars */
+  .compare-list { display: flex; flex-direction: column; gap: 22px; }
+  .compare-row {}
+  .compare-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  .compare-label strong { color: var(--ink); font-weight: 500; }
+  .compare-val { font-size: 12px; color: var(--muted); }
+  .compare-bar-track {
+    height: 8px;
+    background: var(--line);
+    position: relative;
+    overflow: hidden;
+  }
+  .compare-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 1.2s cubic-bezier(.2,.8,.2,1);
+  }
+  .compare-row:nth-child(1) .compare-bar-fill { background: var(--accent); }
+  .compare-row:nth-child(2) .compare-bar-fill { background: var(--accent-deep); opacity: 0.7; }
+  .compare-row:nth-child(3) .compare-bar-fill { background: var(--ink-soft); opacity: 0.55; }
+
+  /* Signals */
+  .signal-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+  .signal {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 14px;
+    align-items: start;
+  }
+  .signal-icon {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--bg);
+    margin-top: 2px;
+  }
+  .signal.risk .signal-icon { background: var(--red); }
+  .signal.opp .signal-icon { background: var(--green); }
+  .signal-text { font-size: 14px; color: var(--ink-soft); }
+  .signal-text strong { color: var(--ink); font-weight: 500; }
+
+  /* Next steps */
+  .next-steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 40px;
+  }
+  .step-card {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    padding: 28px;
+    position: relative;
+  }
+  .step-card h3 { margin-bottom: 12px; font-size: 20px; }
+  .step-card p { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+  .step-card .tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  @media (max-width: 860px) { .next-steps { grid-template-columns: 1fr; } }
+
+  /* Disclaimer */
+  .disclaimer {
+    background: #EFE7D5;
+    border-left: 3px solid var(--amber);
+    padding: 20px 24px;
+    margin-top: 32px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+  .disclaimer strong { color: var(--ink); }
+
+  /* Methodology */
+  .sources-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  .source {
+    background: var(--bg);
+    padding: 24px 28px;
+  }
+  .source-name {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .source-desc { font-size: 13px; color: var(--muted); }
+  .source-limit {
+    font-size: 12px;
+    color: var(--accent-deep);
+    margin-top: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  @media (max-width: 720px) { .sources-grid { grid-template-columns: 1fr; } }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 48px 0 32px;
+    margin-top: 40px;
+  }
+  .footer-grid {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+  .footer-text {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--ink-soft);
+    max-width: 380px;
+    line-height: 1.4;
+  }
+  .footer-meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-align: right;
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="container">
+    <div class="brand">
+      <span class="brand-mark"></span>
+      Terreno
+    </div>
+    <div class="nav-links">
+      <a href="#como-funciona">Como funciona</a>
+      <a href="#simular">Simular</a>
+      <a href="#metodologia">Metodologia</a>
+      <a href="#sobre">Sobre</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow">Plataforma de estudo de mercado · Brasil</span>
+        <h1 style="margin-top: 28px;">
+          <span class="line">Antes de abrir,</span>
+          <span class="line"><span class="accent">entenda</span> o terreno.</span>
+        </h1>
+        <p class="hero-sub">
+          Uma camada gratuita de inteligência de mercado para quem está pensando em abrir um negócio no Brasil. Dados públicos, agregados em um só lugar, traduzidos em sinais de risco e oportunidade.
+        </p>
+        <div class="hero-cta">
+          <button class="btn" onclick="document.getElementById('simular').scrollIntoView()">Simular análise gratuita</button>
+          <a href="#como-funciona" class="btn btn-ghost" style="text-decoration:none; display:inline-block;">Ver como funciona</a>
+        </div>
+      </div>
+
+      <div class="hero-side">
+        <div class="hero-quote">
+          "Cerca de metade dos negócios brasileiros não chega aos cinco anos. Quase sempre o motivo é falta de estudo prévio — não falta de esforço."
+        </div>
+        <div class="hero-quote-source">Base de referência · SEBRAE, IBGE — Demografia das Empresas</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats strip -->
+  <div class="container">
+    <div class="stats">
+      <div class="stats-grid">
+        <div class="stat">
+          <div class="num">21M+</div>
+          <div class="label">Empresas ativas mapeadas via base pública da Receita Federal</div>
+        </div>
+        <div class="stat">
+          <div class="num">5.570</div>
+          <div class="label">Municípios com dados demográficos do IBGE integrados</div>
+        </div>
+        <div class="stat">
+          <div class="num">1.332</div>
+          <div class="label">Classes CNAE cruzadas com dados de renda e consumo</div>
+        </div>
+        <div class="stat">
+          <div class="num">0</div>
+          <div class="label">Custo para o empreendedor usar a plataforma</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- HOW IT WORKS -->
+<section id="como-funciona">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">01 · Método</span>
+      <h2>Três passos, zero achismo.</h2>
+      <p>Em vez de prever um número mágico de "chance de sucesso", a plataforma devolve indicadores objetivos sobre o contexto do negócio — para que a decisão final continue sendo sua, mas agora informada.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">PASSO 01</div>
+        <h3>Você descreve a ideia</h3>
+        <p>Tipo de negócio (CNAE), cidade, investimento previsto. Cinco campos, dois minutos.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">PASSO 02</div>
+        <h3>Cruzamos dados públicos</h3>
+        <p>IBGE, Receita Federal, POF, RAIS e tendências de busca. Tudo aberto, auditável, gratuito na origem.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">PASSO 03</div>
+        <h3>Você recebe o relatório</h3>
+        <p>Sinais de oportunidade, pontos de atenção, e orientações gerais — com links para profissionais caso queira prosseguir.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SIMULATOR -->
+<section id="simular" style="padding-top: 40px;">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">02 · Simulação</span>
+      <h2>Teste uma ideia <span class="italic">agora</span>.</h2>
+      <p>Este é um protótipo acadêmico. Os dados exibidos são ilustrativos e servem para demonstrar o formato do relatório final.</p>
+    </div>
+
+    <div class="simulator">
+      <div class="form-grid">
+        <div class="field">
+          <label for="cnae">Tipo de negócio</label>
+          <select id="cnae">
+            <option value="cafeteria">Cafeteria / Bar de especialidade</option>
+            <option value="padaria">Padaria e confeitaria</option>
+            <option value="academia">Academia / Studio fitness</option>
+            <option value="petshop">Petshop e serviços veterinários</option>
+            <option value="restaurante">Restaurante</option>
+            <option value="moda">Loja de roupas</option>
+            <option value="salao">Salão de beleza / Barbearia</option>
+            <option value="mercado">Mini-mercado / Hortifruti</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="estado">Estado <span id="estado-status" class="field-status">carregando IBGE…</span></label>
+          <select id="estado" disabled>
+            <option>Carregando estados…</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="cidade">Cidade / Município <span id="cidade-status" class="field-status"></span></label>
+          <select id="cidade" disabled>
+            <option>Selecione um estado primeiro</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="investimento">Investimento inicial previsto</label>
+          <select id="investimento">
+            <option>Até R$ 30 mil</option>
+            <option selected>R$ 30 mil – R$ 100 mil</option>
+            <option>R$ 100 mil – R$ 300 mil</option>
+            <option>Acima de R$ 300 mil</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn" id="generateBtn" onclick="generateReport()" disabled>Carregando dados do IBGE…</button>
+      <div class="form-error" id="formError"></div>
+    </div>
+  </div>
+</section>
+
+<!-- REPORT -->
+<section id="report">
+  <div class="container">
+    <div class="report-header">
+      <div>
+        <span class="eyebrow">Relatório preliminar</span>
+        <h2 style="margin-top: 14px;" id="rep-title">Cafeteria · Campinas, SP</h2>
+      </div>
+      <div class="report-meta">
+        RELATÓRIO #TR-2026-0418<br/>
+        GERADO EM 24.ABR.2026<br/>
+        BASE DE DADOS · IBGE / BCB / RAIS
+      </div>
+    </div>
+
+    <div class="report-grid">
+
+      <!-- Macro context strip (BCB live) -->
+      <div class="card span-12">
+        <div class="card-head">
+          <span class="card-title">Contexto macroeconômico · Brasil</span>
+          <span class="source-tag live">Banco Central · Live</span>
+        </div>
+        <div class="macro-grid">
+          <div class="macro-item">
+            <span class="macro-label">Taxa Selic (meta)</span>
+            <span class="macro-value accent" id="rep-selic">—</span>
+            <span class="macro-note" id="rep-selic-note">Custo do crédito para financiar o investimento inicial</span>
+          </div>
+          <div class="macro-item">
+            <span class="macro-label">IPCA · 12 meses</span>
+            <span class="macro-value" id="rep-ipca">—</span>
+            <span class="macro-note" id="rep-ipca-note">Inflação acumulada — impacta insumos e aluguel</span>
+          </div>
+          <div class="macro-item">
+            <span class="macro-label">USD / BRL</span>
+            <span class="macro-value" id="rep-usd">—</span>
+            <span class="macro-note">Relevante se o negócio depende de importados</span>
+          </div>
+          <div class="macro-item">
+            <span class="macro-label">Leitura macro</span>
+            <span class="macro-value" id="rep-macro-read" style="font-size: 24px; font-style: italic;">—</span>
+            <span class="macro-note">Síntese contextual para abrir negócio agora</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Key card: overall read -->
+      <div class="card span-8">
+        <div class="card-head">
+          <span class="card-title">Leitura geral do contexto</span>
+          <span class="pill mid"><span class="pill-dot"></span>Moderado</span>
+        </div>
+        <p style="font-family: 'Fraunces', serif; font-size: 28px; line-height: 1.25;  color: var(--ink); max-width: 600px;" id="rep-lead">
+          Mercado <em>competitivo porém saudável</em>, com demanda compatível ao perfil socioeconômico da região. Atenção especial à saturação em bairros centrais.
+        </p>
+        <p class="card-sub" style="margin-top: 18px; max-width: 600px;">
+          Esta leitura combina densidade de concorrentes ativos, renda média da população, tendência de busca nos últimos 12 meses e variação de empregos no setor.
+        </p>
+      </div>
+
+      <!-- Big number: demographic fit -->
+      <div class="card span-4">
+        <div class="card-head">
+          <span class="card-title">Aderência demográfica</span>
+          <span class="source-tag live">IBGE · Live</span>
+        </div>
+        <div class="card-big accent" id="rep-demog">78<span style="font-size: 24px; color: var(--muted);">/100</span></div>
+        <div class="card-sub" id="rep-demog-sub">Renda média, faixa etária e densidade urbana do município compatíveis com o público típico do setor.</div>
+      </div>
+
+      <!-- Indicators -->
+      <div class="card span-6">
+        <div class="card-head">
+          <span class="card-title">Indicadores do mercado local</span>
+          <span class="source-tag estimated" id="indicTag">CEMPRE · Live</span>
+        </div>
+        <div class="indicator-list">
+
+          <div class="indicator">
+            <div class="indicator-name">
+              Densidade de concorrentes
+              <small id="rep-density-sub">CNPJs ativos no mesmo CNAE por 10 mil habitantes</small>
+            </div>
+            <span class="pill mid" id="rep-density-pill"><span class="pill-dot"></span>Moderada</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill amber" id="rep-density-bar" style="width: 62%"></div></div>
+
+          <div class="indicator" style="margin-top: 10px;">
+            <div class="indicator-name">
+              Tendência de interesse (Google Trends)
+              <small id="rep-trend-sub">Variação de buscas pelo termo nos últimos 12 meses</small>
+            </div>
+            <span class="pill pos" id="rep-trend-pill"><span class="pill-dot"></span>Crescente</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill green" id="rep-trend-bar" style="width: 74%"></div></div>
+
+          <div class="indicator" style="margin-top: 10px;">
+            <div class="indicator-name">
+              Pessoal ocupado no setor
+              <small id="rep-empr-sub">Total de trabalhadores no setor no município (CEMPRE)</small>
+            </div>
+            <span class="pill pos" id="rep-empr-pill"><span class="pill-dot"></span>Média</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill green" id="rep-empr-bar" style="width: 58%"></div></div>
+
+          <div class="indicator" style="margin-top: 10px;">
+            <div class="indicator-name">
+              Sazonalidade
+              <small id="rep-sazon-sub">Variância das buscas mensais — indicador derivado</small>
+            </div>
+            <span class="pill low" id="rep-sazon-pill"><span class="pill-dot"></span>Baixa</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill green" id="rep-sazon-bar" style="width: 28%"></div></div>
+
+        </div>
+      </div>
+
+      <!-- Search trend chart -->
+      <div class="card span-6">
+        <div class="card-head">
+          <span class="card-title">Interesse de busca · 12 meses</span>
+          <span class="source-tag live" id="trendSourceTag">Google Trends · Live</span>
+        </div>
+        <svg class="chart" viewBox="0 0 500 200" preserveAspectRatio="none">
+          <!-- grid -->
+          <line x1="0" y1="40" x2="500" y2="40" class="grid-line"/>
+          <line x1="0" y1="100" x2="500" y2="100" class="grid-line"/>
+          <line x1="0" y1="160" x2="500" y2="160" class="grid-line"/>
+
+          <!-- area -->
+          <path id="trendArea" class="trend-area" d="M 0,140 L 40,135 L 80,130 L 120,120 L 160,115 L 200,105 L 240,95 L 280,85 L 320,80 L 360,70 L 400,65 L 440,55 L 480,45 L 500,40 L 500,200 L 0,200 Z"/>
+          <!-- line -->
+          <path id="trendLine" class="trend-line" d="M 0,140 L 40,135 L 80,130 L 120,120 L 160,115 L 200,105 L 240,95 L 280,85 L 320,80 L 360,70 L 400,65 L 440,55 L 480,45"/>
+
+          <!-- point -->
+          <circle id="trendPoint" class="point" cx="480" cy="45" r="4"/>
+
+          <!-- labels -->
+          <text x="0" y="195" class="axis" id="trendLabelStart">—</text>
+          <text x="230" y="195" class="axis" id="trendLabelMid">—</text>
+          <text x="445" y="195" class="axis" id="trendLabelEnd">—</text>
+        </svg>
+        <div class="card-sub" id="trendSub" style="margin-top: 12px;">Aguardando dados do Google Trends para o termo selecionado…</div>
+      </div>
+
+      <!-- Comparação município × estado × Brasil (CEMPRE) -->
+      <div class="card span-6">
+        <div class="card-head">
+          <span class="card-title">Comparação geográfica · densidade do setor</span>
+          <span class="source-tag live">CEMPRE · Live</span>
+        </div>
+        <div id="cempreCompare" class="compare-list">
+          <div style="color: var(--muted); font-size: 13px; padding: 24px 0;">Aguardando dados do CEMPRE…</div>
+        </div>
+        <div class="card-sub" style="margin-top: 18px;">
+          Empresas ativas no CNAE por 10 mil habitantes em cada nível geográfico. Comparação direta entre o município, seu estado e a média do Brasil revela se a região está saturada ou subatendida no setor.
+        </div>
+      </div>
+
+      <!-- Demographic match -->
+      <div class="card span-6">
+        <div class="card-head">
+          <span class="card-title">Perfil socioeconômico local</span>
+          <span class="source-tag live">IBGE · Live</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+          <div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.1em;">POPULAÇÃO ESTIMADA</div>
+            <div class="card-big" id="rep-pop" style="font-size: 36px; margin-top: 8px;">—</div>
+            <div class="card-sub" id="rep-pop-sub">Último dado disponível no IBGE</div>
+          </div>
+          <div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.1em;">PIB PER CAPITA</div>
+            <div class="card-big" id="rep-pib-percap" style="font-size: 36px; margin-top: 8px;">—</div>
+            <div class="card-sub" id="rep-pib-percap-sub">SIDRA tabela 5938 · último ano disponível</div>
+          </div>
+          <div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.1em;">PIB MUNICIPAL</div>
+            <div class="card-big" id="rep-pib-total" style="font-size: 36px; margin-top: 8px;">—</div>
+            <div class="card-sub">Produto interno bruto a preços correntes</div>
+          </div>
+          <div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.1em;">EMPRESAS NO SETOR</div>
+            <div class="card-big" id="rep-estab" style="font-size: 36px; margin-top: 8px;">—</div>
+            <div class="card-sub">CEMPRE/IBGE — empresas ativas no CNAE</div>
+          </div>
+          <div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.1em;">HABITANTES POR EMPRESA</div>
+            <div class="card-big" id="rep-ratio" style="font-size: 36px; margin-top: 8px;">—</div>
+            <div class="card-sub">Indicador de saturação setorial</div>
+          </div>
+          <div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.1em;">MERCADO POTENCIAL</div>
+            <div class="card-big" id="rep-potential" style="font-size: 36px; margin-top: 8px;">—</div>
+            <div class="card-sub">Clientes potenciais estimados via população</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Opportunities -->
+      <div class="card span-6">
+        <div class="card-head">
+          <span class="card-title">Sinais de oportunidade</span>
+          <span class="source-tag live">Derivado dos dados</span>
+        </div>
+        <ul class="signal-list" id="oportunidadesList">
+          <li style="color: var(--muted); font-size: 13px; list-style: none;">Aguardando análise…</li>
+        </ul>
+      </div>
+
+      <!-- Risks -->
+      <div class="card span-6">
+        <div class="card-head">
+          <span class="card-title">Pontos de atenção</span>
+          <span class="source-tag live">Derivado dos dados</span>
+        </div>
+        <ul class="signal-list" id="riscosList">
+          <li style="color: var(--muted); font-size: 13px; list-style: none;">Aguardando análise…</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Download do relatório -->
+    <div class="download-panel" id="downloadPanel">
+      <div class="download-text">
+        <span class="eyebrow">Baixar relatório</span>
+        <h3 style="margin-top: 12px; margin-bottom: 8px;">Levar este relatório com você</h3>
+        <p>Exporte uma cópia em PDF com todos os indicadores, comparações e fontes desta análise.</p>
+      </div>
+      <button class="btn" id="downloadPdfBtn" onclick="downloadReportPdf()">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-right: 8px;">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Baixar PDF
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- NEXT STEPS -->
+<section style="padding-top: 40px;">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">03 · Próximos passos</span>
+      <h2>Se decidir seguir, <span class="italic">por onde começar</span>.</h2>
+      <p>Orientações gerais, informativas, baseadas no perfil típico de negócios do porte simulado. Não substituem um profissional.</p>
+    </div>
+
+    <div class="next-steps">
+      <div class="step-card">
+        <span class="tag">FORMALIZAÇÃO</span>
+        <h3 style="margin-top: 12px;">Modelo jurídico</h3>
+        <p>Para faturamento anual previsto abaixo de R$ 81 mil, o MEI costuma ser o ponto de partida mais simples. Acima disso, ME ou EPP sob Simples Nacional são os caminhos usuais.</p>
+        <span class="mono" style="font-size: 11px; color: var(--muted);">FONTE · PORTAL DO EMPREENDEDOR, LC 123/2006</span>
+      </div>
+      <div class="step-card">
+        <span class="tag">TRIBUTAÇÃO</span>
+        <h3 style="margin-top: 12px;">Regime tributário</h3>
+        <p>Simples Nacional tende a ser vantajoso no faixa de faturamento deste porte. Lucro Presumido e Lucro Real só passam a valer a pena em cenários específicos — compare com um contador antes de decidir.</p>
+        <span class="mono" style="font-size: 11px; color: var(--muted);">FONTE · RECEITA FEDERAL — SIMULADOR SIMPLES</span>
+      </div>
+      <div class="step-card">
+        <span class="tag">APOIO PROFISSIONAL</span>
+        <h3 style="margin-top: 12px;">Quando procurar especialistas</h3>
+        <p>Contador: recomendado a partir da formalização como ME. Advogado: importante em contratos de ponto comercial, sociedade ou franquia. SEBRAE: oferece consultoria gratuita em muitos municípios.</p>
+        <span class="mono" style="font-size: 11px; color: var(--muted);">REDE DE PARCEIROS · EM CONSTRUÇÃO</span>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      <strong>Aviso.</strong> As orientações acima são informativas e genéricas, com base no perfil de negócio simulado. Terreno não presta consultoria jurídica, contábil ou financeira e não substitui profissionais registrados na OAB ou no CFC. Para decisões de formalização, tributação ou contratos, consulte sempre um contador ou advogado de sua confiança.
+    </div>
+  </div>
+</section>
+
+<!-- METHODOLOGY -->
+<section id="metodologia">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">04 · Metodologia</span>
+      <h2>De onde vêm os dados.</h2>
+      <p>Transparência total sobre fontes, periodicidade de atualização e limitações conhecidas. Tudo o que a plataforma usa é público.</p>
+    </div>
+
+    <div class="sources-grid">
+      <div class="source">
+        <div class="source-name">IBGE Localidades <span class="source-tag live" style="margin-left: 8px;">Integrado</span></div>
+        <div class="source-desc">Lista oficial de estados e municípios brasileiros via API REST <code style="font-family: 'IBM Plex Mono', monospace; font-size: 11px;">servicodados.ibge.gov.br/api/v1/localidades</code>.</div>
+        <div class="source-limit">Cache no servidor IBGE — atualização rara.</div>
+      </div>
+      <div class="source">
+        <div class="source-name">IBGE SIDRA · Estimativas de População <span class="source-tag live" style="margin-left: 8px;">Integrado</span></div>
+        <div class="source-desc">Tabela 6579 / variável 9324 — população residente estimada por município. Atualizada anualmente.</div>
+        <div class="source-limit">Defasagem de até 12 meses até a próxima publicação.</div>
+      </div>
+      <div class="source">
+        <div class="source-name">IBGE SIDRA · CEMPRE <span class="source-tag live" style="margin-left: 8px;">Integrado</span></div>
+        <div class="source-desc">Tabela 9418 — Cadastro Central de Empresas. Número de empresas, pessoal ocupado total e salários por município e CNAE 2.0 (até nível de classe). Substitui tanto o dump da Receita quanto a RAIS para o escopo desta plataforma.</div>
+        <div class="source-limit">IDs de variáveis e categorias CNAE são descobertos automaticamente via endpoint <code style="font-family: 'IBM Plex Mono', monospace; font-size: 11px;">/metadados</code>.</div>
+      </div>
+      <div class="source">
+        <div class="source-name">IBGE SIDRA · PIB Municipal <span class="source-tag live" style="margin-left: 8px;">Integrado</span></div>
+        <div class="source-desc">Tabela 5938 — Produto Interno Bruto e PIB per capita por município, atualização anual.</div>
+        <div class="source-limit">Defasagem típica de 2 anos entre o ano de referência e a publicação.</div>
+      </div>
+      <div class="source">
+        <div class="source-name">Banco Central · SGS <span class="source-tag live" style="margin-left: 8px;">Integrado</span></div>
+        <div class="source-desc">Séries temporais oficiais do BCB: Selic (432), IPCA mensal (433) e USD/BRL (1). Consumo via <code style="font-family: 'IBM Plex Mono', monospace; font-size: 11px;">api.bcb.gov.br/dados/serie</code>. IPCA acumulado calculado no front-end (produto dos fatores mensais).</div>
+        <div class="source-limit">IPCA tem defasagem de ~30 dias; Selic atualiza após cada Copom.</div>
+      </div>
+      <div class="source">
+        <div class="source-name">Google Trends <span class="source-tag live" style="margin-left: 8px;">Integrado</span></div>
+        <div class="source-desc">Interesse de busca pelo termo do setor nos últimos 12 meses, com filtro regional por UF. Acessado via biblioteca <code style="font-family: 'IBM Plex Mono', monospace; font-size: 11px;">pytrends</code> no backend (impossível direto do navegador por CORS).</div>
+        <div class="source-limit">API não-oficial — sujeita a bloqueios temporários do Google em uso intenso.</div>
+      </div>
+    </div>
+
+    <div class="disclaimer" style="margin-top: 32px;">
+      <strong>Sobre o que <em>não</em> fazemos.</strong> A plataforma não prevê "probabilidade de sucesso" ou "sobrevivência em 5 anos" — modelos preditivos a partir de variáveis agregadas carregam incerteza alta e podem induzir decisões erradas. O que entregamos são indicadores objetivos e auditáveis, oriundos de fontes públicas. O julgamento final continua com o empreendedor.
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="sobre">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom: 16px;">
+          <span class="brand-mark"></span>
+          Terreno
+        </div>
+        <div class="footer-text">
+          Um projeto acadêmico que acredita que decisão empreendedora boa começa com dado bom — e que dado bom deveria ser gratuito.
+        </div>
+      </div>
+      <div class="footer-meta">
+        PROJETO ACADÊMICO · 2026<br/>
+        DADOS ABERTOS · SEM FINS COMERCIAIS<br/>
+        VERSÃO 0.1 · PROTÓTIPO
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ========================================================================
+  // TERRENO — frontend conectado ao backend FastAPI
+  // ========================================================================
+  // Toda a lógica de integração com APIs externas (IBGE, BCB, RAIS, Trends)
+  // mora no backend. Este script é responsável apenas por:
+  //   - Consumir o backend em 2 endpoints: /localidades e /relatorio
+  //   - Renderizar o dashboard com os dados recebidos
+  //
+  // Configure API_BASE para apontar para o seu backend.
+  // Em desenvolvimento local: http://localhost:8000/api
+  // Em produção: https://terreno-api.seu-dominio.com/api
+  // ========================================================================
+
+  const API_BASE = window.TERRENO_API_BASE || 'http://localhost:8000/api';
+
+  // ---------- Helpers ----------
+  const $ = id => document.getElementById(id);
+
+  function setFieldStatus(id, text, type = '') {
+    const el = $(id);
+    if (!el) return;
+    el.textContent = text;
+    el.className = 'field-status' + (type ? ' ' + type : '');
+  }
+
+  function showFormError(msg) {
+    const err = $('formError');
+    err.textContent = msg;
+    err.classList.add('visible');
+  }
+  function clearFormError() {
+    $('formError').classList.remove('visible');
+  }
+
+  function formatNumber(n) {
+    return (n ?? 0).toLocaleString('pt-BR');
+  }
+  function formatAbbrev(n) {
+    if (n == null) return '—';
+    if (n >= 1e9) return (n / 1e9).toFixed(2).replace('.', ',') + 'B';
+    if (n >= 1e6) return (n / 1e6).toFixed(2).replace('.', ',') + 'M';
+    if (n >= 1e3) return (n / 1e3).toFixed(1).replace('.', ',') + 'K';
+    return formatNumber(n);
+  }
+  function formatMonthLabel(monthStr) {
+    // "202504" → "ABR/25"
+    const meses = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+    const yr = monthStr.substring(2, 4);
+    const mo = parseInt(monthStr.substring(4, 6), 10);
+    return `${meses[mo - 1]}/${yr}`;
+  }
+
+  async function apiGet(path, params = {}) {
+    const qs = new URLSearchParams(params).toString();
+    const url = `${API_BASE}${path}${qs ? '?' + qs : ''}`;
+    const res = await fetch(url);
+    if (!res.ok) {
+      let detail = `HTTP ${res.status}`;
+      try { detail = (await res.json()).detail || detail; } catch {}
+      throw new Error(detail);
+    }
+    return res.json();
+  }
+
+  // ---------- Carga de estados/municípios ----------
+  async function loadStates() {
+    try {
+      const { estados } = await apiGet('/localidades/estados');
+      const sel = $('estado');
+      sel.innerHTML = '<option value="">Selecione um estado…</option>';
+      estados.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.dataset.sigla = s.sigla;
+        opt.dataset.nome = s.nome;
+        opt.textContent = s.nome;
+        sel.appendChild(opt);
+      });
+      sel.disabled = false;
+      setFieldStatus('estado-status', `✓ ${estados.length} estados`, 'ok');
+    } catch (e) {
+      console.error('Falha ao carregar estados:', e);
+      setFieldStatus('estado-status', '✕ backend indisponível', 'err');
+      showFormError(
+        `Não foi possível conectar ao backend em ${API_BASE}. ` +
+        `Verifique se o servidor está rodando ou ajuste window.TERRENO_API_BASE.`
+      );
+    }
+  }
+
+  async function loadMunicipalities(ufId) {
+    const sel = $('cidade');
+    sel.disabled = true;
+    sel.innerHTML = '<option>Carregando municípios…</option>';
+    setFieldStatus('cidade-status', 'carregando…');
+
+    try {
+      const { municipios } = await apiGet(`/localidades/estados/${ufId}/municipios`);
+      sel.innerHTML = '<option value="">Selecione um município…</option>';
+      municipios.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.id;
+        opt.dataset.nome = m.nome;
+        opt.textContent = m.nome;
+        sel.appendChild(opt);
+      });
+      sel.disabled = false;
+      setFieldStatus('cidade-status', `✓ ${municipios.length} municípios`, 'ok');
+      checkFormReady();
+    } catch (e) {
+      console.error('Falha ao carregar municípios:', e);
+      setFieldStatus('cidade-status', '✕ falha', 'err');
+      sel.innerHTML = '<option>Erro ao carregar</option>';
+    }
+  }
+
+  function checkFormReady() {
+    const btn = $('generateBtn');
+    if ($('estado').value && $('cidade').value) {
+      btn.disabled = false;
+      btn.textContent = 'Gerar relatório ↓';
+    }
+  }
+
+  // ---------- Renderização do relatório ----------
+
+  function renderSignals(oportunidades, riscos) {
+    const opList = $('oportunidadesList');
+    const rkList = $('riscosList');
+    if (!opList || !rkList) return;
+
+    const empty = '<li style="color: var(--muted); font-size: 13px; list-style: none; padding: 4px 0;">Nenhum sinal relevante detectado nos dados disponíveis.</li>';
+
+    // Oportunidades
+    if (oportunidades && oportunidades.length) {
+      opList.innerHTML = oportunidades.map(s => `
+        <li class="signal opp">
+          <div class="signal-icon">+</div>
+          <div class="signal-text"><strong>${s.titulo}</strong> ${s.descricao}</div>
+        </li>
+      `).join('');
+    } else {
+      opList.innerHTML = empty;
+    }
+
+    // Riscos
+    if (riscos && riscos.length) {
+      rkList.innerHTML = riscos.map(s => `
+        <li class="signal risk">
+          <div class="signal-icon">!</div>
+          <div class="signal-text"><strong>${s.titulo}</strong> ${s.descricao}</div>
+        </li>
+      `).join('');
+    } else {
+      rkList.innerHTML = empty;
+    }
+  }
+
+  // Guarda o último relatório gerado pra ser consumido pelo gerador de PDF
+  let lastReport = null;
+
+  function updateReport(report) {
+    const muniNome = $('cidade').options[$('cidade').selectedIndex].dataset.nome;
+    const ufSigla = $('estado').options[$('estado').selectedIndex].dataset.sigla;
+    // Anexa muniNome e ufSigla no report pro gerador de PDF poder acessar
+    report.muniNome = muniNome;
+    report.ufSigla = ufSigla;
+    lastReport = report;
+
+    const ind = report.indicators;
+    const cnae = report.cnae;
+
+    $('rep-title').textContent = `${cnae.nome} · ${muniNome}, ${ufSigla}`;
+
+    // População & derivados
+    $('rep-pop').textContent = formatAbbrev(ind.populacao);
+    $('rep-pop-sub').textContent = `Estimativa IBGE para ${report.populacao_ano} · ${formatNumber(ind.populacao)} habitantes`;
+    $('rep-potential').textContent = formatAbbrev(ind.mercado_potencial);
+    $('rep-estab').textContent = formatNumber(ind.empresas_municipio);
+    $('rep-ratio').textContent = formatNumber(ind.habitantes_por_empresa);
+
+    // Aderência demográfica
+    $('rep-demog').innerHTML = `${ind.demog_score}<span style="font-size: 24px; color: var(--muted);">/100</span>`;
+
+    // Densidade competitiva
+    $('rep-density-sub').textContent = ind.data_real_cempre
+      ? `${formatNumber(ind.empresas_municipio)} empresas ativas no CEMPRE ${ind.cempre_ano || ''} · ${ind.density_ratio_local} por 10 mil hab.`
+      : `Estimativa via população (CEMPRE indisponível)`;
+
+    const pill = $('rep-density-pill');
+    pill.innerHTML = `<span class="pill-dot"></span>${ind.density_level}`;
+    pill.className = 'pill ' + (ind.density_level === 'Alta' ? 'high' : ind.density_level === 'Moderada' ? 'mid' : 'low');
+    const bar = $('rep-density-bar');
+    bar.style.width = '0%';
+    bar.className = 'bar-fill ' + (ind.density_level === 'Alta' ? 'red' : ind.density_level === 'Moderada' ? 'amber' : 'green');
+    setTimeout(() => bar.style.width = ind.density_pct + '%', 300);
+
+    // Tag do card de indicadores
+    const indicTag = $('indicTag');
+    if (ind.data_real_cempre) {
+      indicTag.textContent = 'CEMPRE · Live';
+      indicTag.className = 'source-tag live';
+    } else {
+      indicTag.textContent = 'Estimado';
+      indicTag.className = 'source-tag estimated';
+    }
+
+    // Comparação geográfica
+    if (report.cempre) renderCempreComparison(report);
+
+    // PIB
+    if (report.pib) {
+      // Tenta usar o PIB per capita direto do SIDRA. Se vier vazio, calcula
+      // como PIB total (em R$ × 1000) ÷ população atual — é matematicamente
+      // equivalente, só com ano de referência um ano mais novo.
+      let pibPercap = report.pib.pib_percap;
+      let pibPercapFromCalc = false;
+      if (pibPercap == null && report.pib.pib != null && ind.populacao > 0) {
+        pibPercap = (report.pib.pib * 1000) / ind.populacao;
+        pibPercapFromCalc = true;
+      }
+      if (pibPercap != null) {
+        $('rep-pib-percap').textContent = 'R$ ' + formatNumber(Math.round(pibPercap));
+        // anexa no report pra o gerador de PDF usar também
+        report.pib._pibPercapComputed = pibPercap;
+        report.pib._pibPercapFromCalc = pibPercapFromCalc;
+        const subEl = $('rep-pib-percap-sub');
+        if (subEl) {
+          subEl.textContent = pibPercapFromCalc
+            ? 'Calculado · PIB total ÷ população atual'
+            : 'SIDRA tabela 5938 · último ano disponível';
+        }
+      } else {
+        $('rep-pib-percap').textContent = '—';
+      }
+      if (report.pib.pib != null) {
+        // PIB do SIDRA vem em R$ × 1000
+        $('rep-pib-total').textContent = 'R$ ' + formatAbbrev(report.pib.pib * 1000);
+      }
+    } else {
+      $('rep-pib-percap').textContent = '—';
+      $('rep-pib-total').textContent = '—';
+    }
+
+    // Indicador de emprego (RAIS) — substitui ou complementa o pessoal CEMPRE
+    const emprElem = $('rep-empr-sub');
+    const emprPill = $('rep-empr-pill');
+    const emprBar = $('rep-empr-bar');
+    if (emprElem && emprPill && emprBar) {
+      if (ind.emprego_variacao_pct != null) {
+        const sinal = ind.emprego_variacao_pct >= 0 ? '+' : '';
+        emprElem.textContent =
+          `RAIS · variação de ${sinal}${ind.emprego_variacao_pct}% nos vínculos formais (${report.rais?.ano_inicial}–${report.rais?.ano_final})`;
+        let cls, barCls, pct;
+        if (ind.emprego_level === 'Setor em expansão')      { cls = 'pos'; barCls = 'green'; pct = 75; }
+        else if (ind.emprego_level === 'Setor estável')     { cls = 'mid'; barCls = 'amber'; pct = 50; }
+        else                                                  { cls = 'high'; barCls = 'red';   pct = 28; }
+        emprPill.innerHTML = `<span class="pill-dot"></span>${ind.emprego_level}`;
+        emprPill.className = 'pill ' + cls;
+        emprBar.className = 'bar-fill ' + barCls;
+        emprBar.style.width = '0%';
+        setTimeout(() => emprBar.style.width = pct + '%', 500);
+      } else if (ind.pessoal_municipio != null) {
+        // Fallback: pessoal ocupado do CEMPRE
+        emprElem.textContent = `${formatNumber(ind.pessoal_municipio)} pessoas ocupadas (CEMPRE) · RAIS não configurada`;
+        emprPill.innerHTML = `<span class="pill-dot"></span>Disponível`;
+        emprPill.className = 'pill mid';
+        emprBar.className = 'bar-fill amber';
+        emprBar.style.width = '0%';
+        setTimeout(() => emprBar.style.width = '55%', 500);
+      }
+    }
+
+    // Tendência (Google Trends) e Sazonalidade — derivada
+    const trendPill = $('rep-trend-pill');
+    const trendBar = $('rep-trend-bar');
+    const trendSub = $('rep-trend-sub');
+    if (trendPill && trendBar) {
+      if (ind.trend_growth_pct != null) {
+        const sinal = ind.trend_growth_pct >= 0 ? '+' : '';
+        if (trendSub) trendSub.textContent = `Google Trends · ${sinal}${ind.trend_growth_pct}% nos últimos 12 meses`;
+        let cls, barCls;
+        if (ind.trend_level === 'Crescente')      { cls = 'pos'; barCls = 'green'; }
+        else if (ind.trend_level === 'Estável')   { cls = 'mid'; barCls = 'amber'; }
+        else                                       { cls = 'high'; barCls = 'red';   }
+        trendPill.innerHTML = `<span class="pill-dot"></span>${ind.trend_level}`;
+        trendPill.className = 'pill ' + cls;
+        trendBar.className = 'bar-fill ' + barCls;
+        trendBar.style.width = '0%';
+        const pct = Math.max(15, Math.min(90, 50 + (ind.trend_growth_pct || 0)));
+        setTimeout(() => trendBar.style.width = pct + '%', 400);
+      } else {
+        if (trendSub) trendSub.textContent = 'Google Trends indisponível no momento';
+        trendPill.innerHTML = `<span class="pill-dot"></span>Indisponível`;
+        trendPill.className = 'pill';
+      }
+    }
+
+    const sazonPill = $('rep-sazon-pill');
+    const sazonBar = $('rep-sazon-bar');
+    const sazonSub = $('rep-sazon-sub');
+    if (sazonPill && sazonBar) {
+      if (ind.sazon_cv != null) {
+        if (sazonSub) sazonSub.textContent = `Coef. variação ${(ind.sazon_cv * 100).toFixed(0)}% nas buscas mensais`;
+        let cls, barCls, pct;
+        if (ind.sazon_level === 'Alta')          { cls = 'high'; barCls = 'red';   pct = Math.min(90, ind.sazon_cv * 200); }
+        else if (ind.sazon_level === 'Moderada') { cls = 'mid';  barCls = 'amber'; pct = ind.sazon_cv * 200; }
+        else                                      { cls = 'low';  barCls = 'green'; pct = Math.max(15, ind.sazon_cv * 200); }
+        sazonPill.innerHTML = `<span class="pill-dot"></span>${ind.sazon_level}`;
+        sazonPill.className = 'pill ' + cls;
+        sazonBar.className = 'bar-fill ' + barCls;
+        sazonBar.style.width = '0%';
+        setTimeout(() => sazonBar.style.width = pct + '%', 600);
+      }
+    }
+
+    // Gráfico de tendência (Google Trends)
+    if (report.trend?.points?.length) updateTrendChart(report.trend);
+
+    // Macro (BCB)
+    if (report.macro) updateMacroCard(report.macro);
+
+    // Sinais de oportunidade e pontos de atenção (gerados pelo backend a partir dos dados)
+    renderSignals(ind.oportunidades || [], ind.riscos || []);
+
+    // Leitura narrativa
+    let leitura;
+    if (ind.density_level === 'Alta') {
+      leitura = `Mercado <em>altamente competitivo</em>. ${formatNumber(ind.empresas_municipio)} estabelecimentos atuam no setor, com média de apenas ${formatNumber(ind.habitantes_por_empresa)} habitantes por negócio. A diferenciação será crítica.`;
+    } else if (ind.density_level === 'Moderada') {
+      leitura = `Mercado <em>competitivo porém saudável</em>. ${formatNumber(ind.empresas_municipio)} estabelecimentos atuam no setor, atendendo em média ${formatNumber(ind.habitantes_por_empresa)} habitantes cada — há espaço, mas exige posicionamento claro.`;
+    } else {
+      leitura = `Mercado <em>com espaço relativo</em>. Apenas ${formatNumber(ind.empresas_municipio)} estabelecimentos no setor, com ${formatNumber(ind.habitantes_por_empresa)} habitantes por negócio — possível oportunidade, desde que a demanda local justifique.`;
+    }
+    if (ind.emprego_variacao_pct != null && ind.emprego_variacao_pct > 10) {
+      leitura += ` Adicionalmente, o setor está em <strong>expansão de emprego</strong> no município (${ind.emprego_variacao_pct > 0 ? '+' : ''}${ind.emprego_variacao_pct}% RAIS).`;
+    }
+    $('rep-lead').innerHTML = leitura;
+  }
+
+  // População estimada de cada UF (IBGE 2024). Usada para calcular o ratio
+  // de empresas/10mil habitantes em nível estadual no card de comparação.
+  const POP_UF = {
+    'AC': 880000,    'AL': 3127000,   'AM': 4145000,   'AP': 802000,
+    'BA': 14140000,  'CE': 8800000,   'DF': 2900000,   'ES': 4100000,
+    'GO': 7200000,   'MA': 6770000,   'MG': 20540000,  'MS': 2840000,
+    'MT': 3650000,   'PA': 8120000,   'PB': 3970000,   'PE': 9050000,
+    'PI': 3270000,   'PR': 11440000,  'RJ': 16060000,  'RN': 3300000,
+    'RO': 1580000,   'RR': 640000,    'RS': 11230000,  'SC': 7610000,
+    'SE': 2210000,   'SP': 44410000,  'TO': 1570000
+  };
+  const POP_BR = 213_000_000;
+
+  function renderCempreComparison(report) {
+    const container = $('cempreCompare');
+    if (!container) return;
+    const ind = report.indicators;
+    const c = report.cempre;
+    const ufSigla = report.ufSigla;
+    const popUf = POP_UF[ufSigla];
+
+    const itens = [
+      {
+        label: 'Município',
+        empresas: ind.empresas_municipio,
+        ratio: ind.density_ratio_local,
+      },
+      c.estado ? {
+        label: 'Estado',
+        empresas: c.estado.empresas,
+        ratio: popUf ? (c.estado.empresas / popUf) * 10000 : null,
+      } : null,
+      c.brasil ? {
+        label: 'Brasil',
+        empresas: c.brasil.empresas,
+        ratio: (c.brasil.empresas / POP_BR) * 10000,
+      } : null,
+    ].filter(Boolean);
+
+    const validRatios = itens.map(i => i.ratio).filter(r => r != null && !isNaN(r));
+    const maxRatio = validRatios.length ? Math.max(...validRatios) : 1;
+
+    container.innerHTML = '';
+    itens.forEach(it => {
+      const row = document.createElement('div');
+      row.className = 'compare-row';
+      const ratioStr = it.ratio != null && !isNaN(it.ratio) ? it.ratio.toFixed(1) : '—';
+      const pct = it.ratio != null && !isNaN(it.ratio) && maxRatio > 0
+        ? Math.min(100, (it.ratio / maxRatio) * 100)
+        : 0;
+      row.innerHTML = `
+        <div class="compare-label">
+          <strong>${it.label}</strong>
+          <span class="compare-val">${formatNumber(it.empresas)} empresas · <span class="mono">${ratioStr}/10mil hab</span></span>
+        </div>
+        <div class="compare-bar-track">
+          <div class="compare-bar-fill" style="width: 0%"></div>
+        </div>
+      `;
+      container.appendChild(row);
+      const fill = row.querySelector('.compare-bar-fill');
+      setTimeout(() => fill.style.width = pct + '%', 200);
+    });
+  }
+
+  function updateTrendChart(trend) {
+    const points = trend.points;
+    if (!points?.length) return;
+    const values = points.map(p => p.value);
+    const max = Math.max(...values);
+    const min = Math.min(...values);
+    const range = (max - min) || 1;
+
+    const width = 500;
+    const yTop = 30;
+    const yBottom = 170;
+    const chartH = yBottom - yTop;
+
+    const xy = points.map((p, i) => ({
+      x: (i / (points.length - 1)) * width,
+      y: yTop + (1 - (p.value - min) / range) * chartH,
+      ...p
+    }));
+
+    const pathD = xy.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+    const areaD = pathD + ` L ${width},200 L 0,200 Z`;
+
+    const lineEl = $('trendLine');
+    const areaEl = $('trendArea');
+    lineEl.setAttribute('d', pathD);
+    areaEl.setAttribute('d', areaD);
+
+    const totalLength = lineEl.getTotalLength();
+    lineEl.style.animation = 'none';
+    lineEl.style.strokeDasharray = totalLength;
+    lineEl.style.strokeDashoffset = totalLength;
+    lineEl.style.transition = 'stroke-dashoffset 1.6s ease-out';
+    requestAnimationFrame(() => setTimeout(() => { lineEl.style.strokeDashoffset = '0'; }, 50));
+
+    const last = xy[xy.length - 1];
+    $('trendPoint').setAttribute('cx', last.x.toFixed(1));
+    $('trendPoint').setAttribute('cy', last.y.toFixed(1));
+
+    $('trendLabelStart').textContent = formatMonthLabel(points[0].month);
+    $('trendLabelMid').textContent = formatMonthLabel(points[Math.floor(points.length / 2)].month);
+    $('trendLabelEnd').textContent = formatMonthLabel(points[points.length - 1].month);
+
+    // Atualiza tag para refletir fonte real
+    const tag = $('trendSourceTag');
+    if (tag) {
+      tag.textContent = 'Google Trends · Live';
+      tag.className = 'source-tag live';
+    }
+
+    // Lista de queries relacionadas, se disponível
+    const related = trend.related_queries || [];
+    if (related.length) {
+      const trendSub = $('trendSub');
+      if (trendSub) {
+        trendSub.innerHTML = `Buscas relacionadas: <em>${related.slice(0, 3).join(', ')}</em>`;
+      }
+    }
+  }
+
+  function updateMacroCard(macro) {
+    if (macro.selic != null) {
+      $('rep-selic').textContent = macro.selic.toFixed(2).replace('.', ',') + '%';
+      let nota;
+      if (macro.selic >= 13)      nota = 'Selic elevada — financiamento caro, priorize capital próprio';
+      else if (macro.selic >= 10) nota = 'Selic em patamar moderado — crédito viável com planejamento';
+      else                        nota = 'Selic baixa — janela favorável para crédito';
+      $('rep-selic-note').textContent = nota;
+    }
+    if (macro.ipca12m != null) {
+      $('rep-ipca').textContent = macro.ipca12m.toFixed(2).replace('.', ',') + '%';
+      let nota;
+      if (macro.ipca12m >= 6)      nota = 'Inflação alta — pressão sobre insumos e aluguel';
+      else if (macro.ipca12m >= 4) nota = 'Inflação acima do centro da meta — atenção a contratos';
+      else                         nota = 'Inflação sob controle — custos previsíveis';
+      $('rep-ipca-note').textContent = nota;
+    }
+    if (macro.usd != null) {
+      $('rep-usd').textContent = 'R$ ' + macro.usd.toFixed(2).replace('.', ',');
+    }
+    let leitura = '—';
+    if (macro.selic != null && macro.ipca12m != null) {
+      if (macro.selic >= 13 && macro.ipca12m >= 5)       leitura = 'Cautela';
+      else if (macro.selic >= 13 || macro.ipca12m >= 5)  leitura = 'Atenção';
+      else if (macro.selic < 10 && macro.ipca12m < 4)    leitura = 'Favorável';
+      else                                                leitura = 'Neutra';
+    }
+    $('rep-macro-read').textContent = leitura;
+  }
+
+  // ============================================================
+  // Download PDF — gerado nativamente via jsPDF
+  // ------------------------------------------------------------
+  // Em vez de capturar o site como imagem (abordagem anterior
+  // que sofria com renderização de CSS moderno), aqui desenhamos
+  // o PDF do zero: texto vetorial real, cores controladas,
+  // layout próprio inspirado no relatório do site.
+  // ============================================================
+
+  async function downloadReportPdf() {
+    const btn = $('downloadPdfBtn');
+    const panel = $('downloadPanel');
+
+    if (!lastReport) {
+      alert('Gere um relatório antes de baixar.');
+      return;
+    }
+    if (typeof window.jspdf === 'undefined') {
+      alert('Biblioteca jsPDF não carregou. Verifique sua conexão e recarregue a página.');
+      return;
+    }
+
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = 'Gerando PDF…';
+
+    try {
+      const filename = pdfFilename(lastReport);
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+      drawReportPdf(doc, lastReport);
+      doc.save(filename);
+    } catch (e) {
+      console.error('Falha ao gerar PDF:', e);
+      alert('Não foi possível gerar o PDF. Veja o console (F12) para detalhes.');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
+  }
+
+  function pdfFilename(report) {
+    const titulo = `${report.cnae.nome} ${report.muniNome} ${report.ufSigla}`;
+    const slug = titulo
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9]+/g, '-')
+      .toLowerCase()
+      .replace(/^-|-$/g, '');
+    return `terreno-${slug}-${new Date().toISOString().slice(0, 10)}.pdf`;
+  }
+
+  // ============================================================
+  // Constantes de layout do PDF (em mm, exceto onde indicado)
+  // ============================================================
+  const PDF = {
+    pageW: 210, pageH: 297,
+    margin: 18,
+    // Cores em RGB (jsPDF não aceita hex direto em alguns métodos)
+    color: {
+      ink:       [28, 25, 23],     // #1C1917 — texto principal
+      inkSoft:   [59, 55, 49],     // #3B3731 — texto secundário
+      muted:     [107, 100, 89],   // #6B6459 — labels
+      mutedDim:  [150, 145, 135],  // tom mais claro para detalhes
+      line:      [217, 209, 194],  // #D9D1C2
+      lineSoft:  [230, 223, 208],  // #E6DFD0
+      accent:    [184, 81, 44],    // #B8512C — terracotta principal
+      accentDeep:[138, 59, 31],    // #8A3B1F
+      bg:        [251, 247, 239],  // #FBF7EF — bg de cards
+      bgPage:    [244, 239, 230],  // #F4EFE6 — bg da página
+      green:     [62, 77, 58],     // #3E4D3A — positivo
+      greenSoft: [107, 125, 95],
+      amber:     [198, 138, 46],   // #C68A2E — atenção
+      red:       [168, 65, 46],    // #A8412E — risco
+    }
+  };
+
+  // ------------------------------------------------------------
+  // Helpers de desenho
+  // ------------------------------------------------------------
+
+  function setFill(doc, c) { doc.setFillColor(c[0], c[1], c[2]); }
+  function setStroke(doc, c) { doc.setDrawColor(c[0], c[1], c[2]); }
+  function setText(doc, c) { doc.setTextColor(c[0], c[1], c[2]); }
+
+  // Quebra texto em linhas que cabem em uma largura, sem cortar palavras
+  function wrapText(doc, text, maxW) {
+    return doc.splitTextToSize(text || '', maxW);
+  }
+
+  // Desenha rect com canto reto, opcional border + fill
+  function box(doc, x, y, w, h, opts = {}) {
+    if (opts.fill) {
+      setFill(doc, opts.fill);
+      doc.rect(x, y, w, h, 'F');
+    }
+    if (opts.border) {
+      setStroke(doc, opts.border);
+      doc.setLineWidth(opts.borderWidth || 0.2);
+      doc.rect(x, y, w, h, 'S');
+    }
+  }
+
+  // Pequena tag em cápsula (pill) — usada para pills de status e source tags
+  function pill(doc, x, y, label, color, opts = {}) {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    const padX = 2.5, padY = 1.5;
+    const textWidth = doc.getTextWidth(label.toUpperCase());
+    const w = textWidth + padX * 2 + (opts.dot ? 2 : 0);
+    const h = 4;
+    setStroke(doc, color);
+    doc.setLineWidth(0.15);
+    // arredondado leve
+    doc.roundedRect(x, y - h + 0.5, w, h, h/2, h/2, 'S');
+    setFill(doc, color);
+    if (opts.dot) {
+      doc.circle(x + padX, y - h/2 + 0.5, 0.6, 'F');
+    }
+    setText(doc, color);
+    doc.text(label.toUpperCase(), x + padX + (opts.dot ? 2 : 0), y - 1);
+    return w;
+  }
+
+  // Mini-barra de progresso (para indicadores)
+  function progressBar(doc, x, y, w, pct, color) {
+    setFill(doc, PDF.color.line);
+    doc.rect(x, y, w, 0.8, 'F');
+    setFill(doc, color);
+    doc.rect(x, y, w * Math.min(1, Math.max(0, pct / 100)), 0.8, 'F');
+  }
+
+  // ------------------------------------------------------------
+  // Sistema de paginação: track de cursor Y + adição automática
+  // ------------------------------------------------------------
+  function makePager(doc) {
+    const pager = {
+      y: PDF.margin + 22,                // começa abaixo do cabeçalho
+      pageNum: 1,
+      hasHeader: false,
+      ensure: function(needed) {
+        if (this.y + needed > PDF.pageH - PDF.margin - 10) {
+          this.newPage();
+        }
+      },
+      newPage: function() {
+        doc.addPage();
+        this.pageNum++;
+        this.y = PDF.margin + 14;
+        drawPageFooter(doc, this.pageNum);
+      },
+    };
+    return pager;
+  }
+
+  // ------------------------------------------------------------
+  // Componentes
+  // ------------------------------------------------------------
+
+  function drawCover(doc, report) {
+    const x = PDF.margin;
+    const cw = PDF.pageW - PDF.margin * 2;
+
+    // Faixa terracotta de marca no topo
+    setFill(doc, PDF.color.accent);
+    doc.rect(0, 0, PDF.pageW, 4, 'F');
+
+    // Logo + brand
+    setFill(doc, PDF.color.accent);
+    doc.circle(x + 2, PDF.margin + 2, 2, 'F');
+    setFill(doc, PDF.color.bgPage);
+    doc.circle(x + 2, PDF.margin + 2, 1, 'F');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    setText(doc, PDF.color.ink);
+    doc.text('Terreno', x + 6, PDF.margin + 3);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    setText(doc, PDF.color.muted);
+    doc.text('RELATÓRIO DE ESTUDO DE MERCADO', PDF.pageW - PDF.margin, PDF.margin + 3, { align: 'right' });
+
+    // Eyebrow
+    doc.setFontSize(7);
+    setText(doc, PDF.color.muted);
+    doc.text('RELATÓRIO PRELIMINAR', x, PDF.margin + 22);
+
+    // Título principal
+    doc.setFont('times', 'normal');
+    doc.setFontSize(28);
+    setText(doc, PDF.color.ink);
+    const titulo = `${report.cnae.nome} · ${report.muniNome}, ${report.ufSigla}`;
+    const tituloLines = wrapText(doc, titulo, cw);
+    let yT = PDF.margin + 30;
+    tituloLines.forEach(line => {
+      doc.text(line, x, yT);
+      yT += 10;
+    });
+
+    // Metadados
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    setText(doc, PDF.color.muted);
+    const dataAtual = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+    const meta = [
+      `Gerado em ${dataAtual}`,
+      `População IBGE · referência ${report.populacao_ano || '—'}`,
+      `CNAE 2.0 classe ${report.cnae.cnae_classe || '—'}`,
+      `Fontes: IBGE · BCB · Base dos Dados (RAIS)`,
+    ];
+    let yM = yT + 6;
+    meta.forEach(line => {
+      doc.text(line, x, yM);
+      yM += 4.5;
+    });
+
+    return yM + 4;  // retorna a posição Y onde acaba o cabeçalho
+  }
+
+  function drawPageFooter(doc, pageNum) {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    setText(doc, PDF.color.muted);
+    doc.text('Terreno · Plataforma de estudo de mercado', PDF.margin, PDF.pageH - 8);
+    doc.text(`Página ${pageNum}`, PDF.pageW - PDF.margin, PDF.pageH - 8, { align: 'right' });
+    setStroke(doc, PDF.color.line);
+    doc.setLineWidth(0.15);
+    doc.line(PDF.margin, PDF.pageH - 12, PDF.pageW - PDF.margin, PDF.pageH - 12);
+  }
+
+  function drawSectionTitle(doc, pager, label, title) {
+    pager.ensure(20);
+    const x = PDF.margin;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    setText(doc, PDF.color.accent);
+    doc.text(label.toUpperCase(), x, pager.y);
+
+    pager.y += 4;
+    doc.setFont('times', 'normal');
+    doc.setFontSize(16);
+    setText(doc, PDF.color.ink);
+    doc.text(title, x, pager.y + 3);
+
+    pager.y += 6;
+    setStroke(doc, PDF.color.line);
+    doc.setLineWidth(0.2);
+    doc.line(x, pager.y + 1, PDF.pageW - PDF.margin, pager.y + 1);
+    pager.y += 7;
+  }
+
+  function drawMacro(doc, pager, macro, indicators) {
+    if (!macro) return;
+    pager.ensure(28);
+    const x = PDF.margin;
+    const w = PDF.pageW - PDF.margin * 2;
+
+    // Card
+    box(doc, x, pager.y, w, 24, { fill: PDF.color.bg, border: PDF.color.line });
+
+    // Título
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    setText(doc, PDF.color.muted);
+    doc.text('CONTEXTO MACROECONÔMICO · BRASIL', x + 4, pager.y + 4);
+
+    // 4 colunas
+    const col = w / 4;
+    const items = [
+      { label: 'TAXA SELIC',  value: macro.selic != null ? `${macro.selic.toFixed(2).replace('.', ',')}%` : '—', accent: true },
+      { label: 'IPCA 12M',    value: macro.ipca12m != null ? `${macro.ipca12m.toFixed(2).replace('.', ',')}%` : '—' },
+      { label: 'USD/BRL',     value: macro.usd != null ? `R$ ${macro.usd.toFixed(2).replace('.', ',')}` : '—' },
+      { label: 'LEITURA',     value: $('rep-macro-read')?.textContent?.trim() || '—' },
+    ];
+
+    items.forEach((it, i) => {
+      const cx = x + col * i + 4;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(6.5);
+      setText(doc, PDF.color.muted);
+      doc.text(it.label, cx, pager.y + 10);
+
+      doc.setFont('times', 'normal');
+      doc.setFontSize(15);
+      setText(doc, it.accent ? PDF.color.accent : PDF.color.ink);
+      const val = it.value || '—';
+      // se "Leitura" for muito longo, reduz fonte
+      if (i === 3 && val.length > 10) doc.setFontSize(10);
+      doc.text(val, cx, pager.y + 17);
+    });
+
+    pager.y += 28;
+  }
+
+  function drawLeitura(doc, pager, report) {
+    pager.ensure(30);
+    const x = PDF.margin;
+    const w = PDF.pageW - PDF.margin * 2;
+    const ind = report.indicators;
+
+    // Cabeçalho: "LEITURA GERAL DO CONTEXTO" à esquerda, "Densidade: XYZ" à direita
+    pager.ensure(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    setText(doc, PDF.color.muted);
+    doc.text('LEITURA GERAL DO CONTEXTO', x, pager.y);
+
+    const pillColor = ind.density_level === 'Alta' ? PDF.color.red :
+                      ind.density_level === 'Moderada' ? PDF.color.amber :
+                      PDF.color.green;
+    const pillLabel = `Densidade ${ind.density_level || '—'}`;
+    // Calcula a largura aproximada do pill pra alinhar à direita
+    doc.setFontSize(7);
+    const approxW = doc.getTextWidth(pillLabel.toUpperCase()) + 8;
+    pill(doc, PDF.pageW - PDF.margin - approxW, pager.y, pillLabel, pillColor, { dot: true });
+
+    pager.y += 6;
+
+    // Texto narrativo grande (lê do DOM porque é gerado dinamicamente)
+    const leituraText = ($('rep-lead')?.textContent || '').trim();
+    doc.setFont('times', 'normal');
+    doc.setFontSize(14);
+    setText(doc, PDF.color.ink);
+    const lines = wrapText(doc, leituraText, w);
+    lines.forEach(line => {
+      pager.ensure(7);
+      doc.text(line, x, pager.y + 5);
+      pager.y += 6;
+    });
+    pager.y += 4;
+  }
+
+  function drawAderencia(doc, pager, ind) {
+    pager.ensure(28);
+    const x = PDF.margin;
+    const w = PDF.pageW - PDF.margin * 2;
+
+    box(doc, x, pager.y, w, 24, { fill: PDF.color.bg, border: PDF.color.line });
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    setText(doc, PDF.color.muted);
+    doc.text('ADERÊNCIA DEMOGRÁFICA', x + 4, pager.y + 5);
+
+    // Score grande
+    doc.setFont('times', 'normal');
+    doc.setFontSize(36);
+    setText(doc, PDF.color.accent);
+    const score = ind.demog_score != null ? `${ind.demog_score}` : '—';
+    // Mede a largura COM a fonte 36 (antes de trocar pra 12 do "/100").
+    // Se medíssemos depois, o /100 cairia em cima do score.
+    const scoreWidth = doc.getTextWidth(score);
+    doc.text(score, x + 4, pager.y + 19);
+
+    doc.setFontSize(12);
+    setText(doc, PDF.color.muted);
+    doc.text('/100', x + 4 + scoreWidth + 2, pager.y + 19);
+
+    // Texto descritivo à direita
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    setText(doc, PDF.color.inkSoft);
+    const descX = x + 50;
+    const descW = w - 50 - 4;
+    const desc = 'Combinação de tamanho de mercado, renda média e densidade urbana do município, comparada ao perfil típico do setor.';
+    const descLines = wrapText(doc, desc, descW);
+    let yd = pager.y + 8;
+    descLines.forEach(line => { doc.text(line, descX, yd); yd += 4; });
+
+    pager.y += 28;
+  }
+
+  function drawIndicadores(doc, pager, ind) {
+    pager.ensure(48);
+    const x = PDF.margin;
+    const w = PDF.pageW - PDF.margin * 2;
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    setText(doc, PDF.color.muted);
+    doc.text('INDICADORES DO MERCADO LOCAL', x, pager.y);
+    pager.y += 5;
+
+    const rows = [
+      {
+        name: 'Densidade de concorrentes',
+        sub: ind.data_real_cempre
+          ? `${ind.empresas_municipio} empresas no CEMPRE · ${ind.density_ratio_local}/10 mil hab.`
+          : 'Estimativa via população (CEMPRE indisponível)',
+        level: ind.density_level,
+        pct: ind.density_pct,
+      },
+      {
+        name: 'Habitantes por empresa',
+        sub: ind.habitantes_por_empresa != null
+          ? `${formatNumber(ind.habitantes_por_empresa)} habitantes — indicador de saturação`
+          : '—',
+        level: null,
+      },
+      {
+        name: 'Tendência de emprego no setor',
+        sub: ind.emprego_variacao_pct != null
+          ? `RAIS · ${ind.emprego_variacao_pct >= 0 ? '+' : ''}${ind.emprego_variacao_pct}% nos vínculos formais`
+          : 'RAIS não configurada nesta consulta',
+        level: ind.emprego_level,
+      },
+      {
+        name: 'Sazonalidade',
+        sub: ind.sazon_cv != null
+          ? `Coef. variação ${(ind.sazon_cv * 100).toFixed(0)}% nas buscas mensais`
+          : 'Dado indisponível',
+        level: ind.sazon_level,
+      },
+    ];
+
+    rows.forEach(row => {
+      pager.ensure(11);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9.5);
+      setText(doc, PDF.color.ink);
+      doc.text(row.name, x, pager.y);
+
+      if (row.level) {
+        const lvlColor =
+          ['Alta', 'Setor em retração', 'Declinante'].includes(row.level) ? PDF.color.red :
+          ['Moderada', 'Estável', 'Setor estável', 'Média'].includes(row.level) ? PDF.color.amber :
+          PDF.color.green;
+        pill(doc, PDF.pageW - PDF.margin - 30, pager.y, row.level, lvlColor, { dot: true });
+      }
+
+      doc.setFontSize(7.5);
+      setText(doc, PDF.color.muted);
+      const subLines = wrapText(doc, row.sub, w - 35);
+      let ys = pager.y + 3.5;
+      subLines.forEach(line => { doc.text(line, x, ys); ys += 3.2; });
+
+      pager.y = ys + 1;
+
+      if (row.pct != null) {
+        const barColor = row.level === 'Alta' ? PDF.color.red :
+                         row.level === 'Moderada' ? PDF.color.amber :
+                         PDF.color.green;
+        progressBar(doc, x, pager.y, w, row.pct, barColor);
+        pager.y += 2;
+      }
+      pager.y += 3;
+    });
+
+    pager.y += 2;
+  }
+
+  function drawComparacao(doc, pager, report) {
+    if (!report.cempre) return;
+    const ind = report.indicators;
+    const c = report.cempre;
+    const popUf = POP_UF[report.ufSigla];
+
+    pager.ensure(40);
+    const x = PDF.margin;
+    const w = PDF.pageW - PDF.margin * 2;
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    setText(doc, PDF.color.muted);
+    doc.text('COMPARAÇÃO GEOGRÁFICA · DENSIDADE DO SETOR', x, pager.y);
+    pager.y += 6;
+
+    const itens = [
+      {
+        label: 'Município',
+        empresas: ind.empresas_municipio,
+        ratio: ind.density_ratio_local,
+        color: PDF.color.accent,
+      },
+      c.estado ? {
+        label: 'Estado',
+        empresas: c.estado.empresas,
+        ratio: popUf ? (c.estado.empresas / popUf) * 10000 : null,
+        color: PDF.color.accentDeep,
+      } : null,
+      c.brasil ? {
+        label: 'Brasil',
+        empresas: c.brasil.empresas,
+        ratio: (c.brasil.empresas / POP_BR) * 10000,
+        color: PDF.color.muted,
+      } : null,
+    ].filter(Boolean);
+
+    const ratios = itens.map(i => i.ratio).filter(r => r != null && !isNaN(r));
+    const maxRatio = ratios.length ? Math.max(...ratios) : 0.001;
+
+    itens.forEach(it => {
+      pager.ensure(11);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      setText(doc, PDF.color.ink);
+      doc.text(it.label, x, pager.y);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7.5);
+      setText(doc, PDF.color.muted);
+      const ratioStr = (it.ratio != null && !isNaN(it.ratio)) ? `${it.ratio.toFixed(1)}/10 mil hab` : '—';
+      const valor = `${formatNumber(it.empresas)} empresas · ${ratioStr}`;
+      doc.text(valor, PDF.pageW - PDF.margin, pager.y, { align: 'right' });
+
+      pager.y += 2.5;
+      const pct = (it.ratio != null && !isNaN(it.ratio)) ? (it.ratio / maxRatio) * 100 : 0;
+      setFill(doc, PDF.color.line);
+      doc.rect(x, pager.y, w, 1.5, 'F');
+      setFill(doc, it.color);
+      doc.rect(x, pager.y, w * (pct / 100), 1.5, 'F');
+      pager.y += 6;
+    });
+
+    pager.y += 2;
+  }
+
+  function drawPerfil(doc, pager, report) {
+    const ind = report.indicators;
+    pager.ensure(56);
+    const x = PDF.margin;
+    const w = PDF.pageW - PDF.margin * 2;
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    setText(doc, PDF.color.muted);
+    doc.text('PERFIL SOCIOECONÔMICO LOCAL', x, pager.y);
+    pager.y += 6;
+
+    // PIB per capita: usa o valor computado pelo frontend (pode ter sido
+    // calculado como PIB total ÷ população quando o SIDRA não retornou).
+    const pibPc = report.pib?._pibPercapComputed ?? report.pib?.pib_percap;
+    const pibPcSub = report.pib?._pibPercapFromCalc
+      ? 'Calculado · PIB ÷ população'
+      : 'SIDRA tabela 5938';
+
+    const cells = [
+      { label: 'POPULAÇÃO ESTIMADA',  value: formatAbbrev(ind.populacao),
+        sub: `IBGE · ref. ${report.populacao_ano || '—'}` },
+      { label: 'PIB PER CAPITA',      value: pibPc != null ? `R$ ${formatNumber(Math.round(pibPc))}` : '—',
+        sub: pibPcSub },
+      { label: 'PIB MUNICIPAL',       value: report.pib?.pib != null ? `R$ ${formatAbbrev(report.pib.pib * 1000)}` : '—',
+        sub: 'A preços correntes' },
+      { label: 'EMPRESAS NO SETOR',   value: formatNumber(ind.empresas_municipio),
+        sub: ind.data_real_cempre ? `CEMPRE · ref. ${ind.cempre_ano || '—'}` : 'Estimativa' },
+      { label: 'HABITANTES/EMPRESA',  value: formatNumber(ind.habitantes_por_empresa),
+        sub: 'Saturação setorial' },
+      { label: 'MERCADO POTENCIAL',   value: formatAbbrev(ind.mercado_potencial),
+        sub: 'Clientes estimados' },
+    ];
+
+    const colW = w / 3;
+    const rowH = 22;
+    cells.forEach((cell, i) => {
+      const cx = x + (i % 3) * colW;
+      const cy = pager.y + Math.floor(i / 3) * rowH;
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(6);
+      setText(doc, PDF.color.muted);
+      doc.text(cell.label, cx, cy + 3);
+
+      doc.setFont('times', 'normal');
+      doc.setFontSize(16);
+      setText(doc, PDF.color.ink);
+      doc.text(cell.value, cx, cy + 12);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      setText(doc, PDF.color.muted);
+      doc.text(cell.sub, cx, cy + 17);
+    });
+    pager.y += rowH * 2 + 2;
+  }
+
+  function drawSignals(doc, pager, report) {
+    const ind = report.indicators;
+    const ops = ind.oportunidades || [];
+    const rks = ind.riscos || [];
+
+    if (!ops.length && !rks.length) return;
+
+    drawSectionTitle(doc, pager, '02 · Sinais detectados', 'Oportunidades e pontos de atenção');
+
+    // Oportunidades
+    if (ops.length) {
+      pager.ensure(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7);
+      setText(doc, PDF.color.green);
+      doc.text('SINAIS DE OPORTUNIDADE', PDF.margin, pager.y);
+      pager.y += 4;
+
+      ops.forEach(s => drawSignalItem(doc, pager, s, PDF.color.green, '+'));
+      pager.y += 3;
+    }
+
+    // Riscos
+    if (rks.length) {
+      pager.ensure(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7);
+      setText(doc, PDF.color.red);
+      doc.text('PONTOS DE ATENÇÃO', PDF.margin, pager.y);
+      pager.y += 4;
+
+      rks.forEach(s => drawSignalItem(doc, pager, s, PDF.color.red, '!'));
+      pager.y += 3;
+    }
+  }
+
+  function drawSignalItem(doc, pager, signal, color, glyph) {
+    const x = PDF.margin;
+    const w = PDF.pageW - PDF.margin * 2;
+    const indent = 6;
+
+    pager.ensure(10);
+
+    // Bolinha com glifo
+    setFill(doc, color);
+    doc.circle(x + 2, pager.y - 0.5, 1.8, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    setText(doc, PDF.color.bgPage);
+    doc.text(glyph, x + 2, pager.y + 0.7, { align: 'center' });
+
+    // Título do sinal
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    setText(doc, PDF.color.ink);
+    doc.text(signal.titulo || '', x + indent, pager.y);
+
+    pager.y += 3.5;
+
+    // Descrição
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    setText(doc, PDF.color.inkSoft);
+    const lines = wrapText(doc, signal.descricao || '', w - indent);
+    lines.forEach(line => {
+      pager.ensure(5);
+      doc.text(line, x + indent, pager.y);
+      pager.y += 3.5;
+    });
+
+    pager.y += 2;
+  }
+
+  function drawNextSteps(doc, pager) {
+    drawSectionTitle(doc, pager, '03 · Próximos passos', 'Orientações para seguir');
+
+    const items = [
+      {
+        tag: 'FORMALIZAÇÃO',
+        title: 'Modelo jurídico',
+        body: 'Para faturamento anual abaixo de R$ 81 mil, o MEI costuma ser o ponto de partida mais simples. Acima disso, ME ou EPP sob Simples Nacional são os caminhos usuais.',
+      },
+      {
+        tag: 'TRIBUTAÇÃO',
+        title: 'Regime tributário',
+        body: 'Simples Nacional tende a ser vantajoso para o porte previsto. Lucro Presumido e Lucro Real só passam a valer a pena em cenários específicos — compare com um contador antes de decidir.',
+      },
+      {
+        tag: 'APOIO PROFISSIONAL',
+        title: 'Quando procurar especialistas',
+        body: 'Contador: recomendado a partir da formalização como ME. Advogado: importante em contratos de ponto comercial, sociedade ou franquia. SEBRAE: oferece consultoria gratuita em muitos municípios.',
+      },
+    ];
+
+    const x = PDF.margin;
+    const w = PDF.pageW - PDF.margin * 2;
+
+    items.forEach(it => {
+      pager.ensure(28);
+      box(doc, x, pager.y, w, 24, { border: PDF.color.line });
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7);
+      setText(doc, PDF.color.accent);
+      doc.text(it.tag, x + 4, pager.y + 5);
+
+      doc.setFont('times', 'normal');
+      doc.setFontSize(12);
+      setText(doc, PDF.color.ink);
+      doc.text(it.title, x + 4, pager.y + 11);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      setText(doc, PDF.color.muted);
+      const lines = wrapText(doc, it.body, w - 8);
+      let yt = pager.y + 16;
+      lines.forEach(line => { doc.text(line, x + 4, yt); yt += 3.5; });
+      pager.y += 28;
+    });
+
+    // Disclaimer
+    pager.ensure(20);
+    setFill(doc, [239, 231, 213]);
+    doc.rect(x, pager.y, w, 16, 'F');
+    setFill(doc, PDF.color.amber);
+    doc.rect(x, pager.y, 1, 16, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    setText(doc, PDF.color.ink);
+    doc.text('Aviso.', x + 4, pager.y + 5);
+    doc.setFont('helvetica', 'normal');
+    setText(doc, PDF.color.inkSoft);
+    const aviso = 'As orientações acima são informativas e genéricas. Terreno não presta consultoria jurídica, contábil ou financeira. Para decisões de formalização e tributação, consulte sempre um profissional registrado.';
+    const lines = wrapText(doc, aviso, w - 8);
+    let ya = pager.y + 9;
+    lines.forEach(line => { doc.text(line, x + 4, ya); ya += 3.5; });
+    pager.y += 20;
+  }
+
+  function drawSources(doc, pager, report) {
+    drawSectionTitle(doc, pager, '04 · Metodologia', 'Fontes consultadas neste relatório');
+
+    const status = report.sources_status || {};
+    const sources = [
+      { name: 'IBGE · Localidades', desc: 'Estados e municípios oficiais', key: 'ibge_pop' },
+      { name: 'IBGE · População (SIDRA 6579)', desc: 'Estimativas populacionais', key: 'ibge_pop' },
+      { name: 'IBGE · CEMPRE (SIDRA 9418)', desc: 'Empresas ativas e pessoal ocupado por CNAE', key: 'ibge_cempre' },
+      { name: 'IBGE · PIB Municipal (SIDRA 5938)', desc: 'PIB e PIB per capita', key: 'ibge_pib' },
+      { name: 'Banco Central · SGS', desc: 'Selic, IPCA, USD/BRL', key: 'bcb_macro' },
+      { name: 'RAIS via Base dos Dados', desc: 'Vínculos formais por município e CNAE', key: 'rais_bigquery' },
+      { name: 'Google Trends', desc: 'Interesse de busca pelo termo', key: 'google_trends' },
+    ];
+
+    const x = PDF.margin;
+    const w = PDF.pageW - PDF.margin * 2;
+
+    sources.forEach(s => {
+      pager.ensure(8);
+      const st = status[s.key] || 'n/d';
+      const ok = st.startsWith('ok');
+      const skipped = st.startsWith('skipped');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8.5);
+      setText(doc, PDF.color.ink);
+      doc.text(s.name, x, pager.y);
+
+      // Tag de status
+      const color = ok ? PDF.color.green : (skipped ? PDF.color.muted : PDF.color.red);
+      const label = ok ? 'OK' : (skipped ? 'NÃO USADA' : 'ERRO');
+      pill(doc, PDF.pageW - PDF.margin - 16, pager.y, label, color, { dot: true });
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7.5);
+      setText(doc, PDF.color.muted);
+      doc.text(s.desc, x, pager.y + 3.5);
+
+      pager.y += 8;
+    });
+  }
+
+  // ------------------------------------------------------------
+  // Orquestrador principal
+  // ------------------------------------------------------------
+  function drawReportPdf(doc, report) {
+    // Página 1 — capa
+    drawCover(doc, report);
+    drawPageFooter(doc, 1);
+
+    const pager = makePager(doc);
+    pager.y = 90;  // começa abaixo dos metadados da capa
+
+    // Seção 01 — Análise de mercado
+    drawSectionTitle(doc, pager, '01 · Análise de mercado', 'Indicadores principais');
+
+    drawLeitura(doc, pager, report);
+    drawMacro(doc, pager, report.macro, report.indicators);
+    drawAderencia(doc, pager, report.indicators);
+    drawIndicadores(doc, pager, report.indicators);
+    drawComparacao(doc, pager, report);
+    drawPerfil(doc, pager, report);
+
+    // Seção 02 — Sinais
+    drawSignals(doc, pager, report);
+
+    // Seção 03 — Próximos passos
+    drawNextSteps(doc, pager);
+
+    // Seção 04 — Metodologia
+    drawSources(doc, pager, report);
+  }
+  // ---------- Orquestração ----------
+  async function generateReport() {
+    clearFormError();
+    const btn = $('generateBtn');
+    const ufSel = $('estado');
+    const muniSel = $('cidade');
+    const cnae = $('cnae').value;
+
+    if (!ufSel.value || !muniSel.value) {
+      showFormError('Selecione um estado e um município antes de gerar o relatório.');
+      return;
+    }
+
+    btn.classList.add('loading');
+    btn.textContent = 'Gerando relatório no servidor…';
+
+    try {
+      const report = await apiGet('/relatorio', {
+        cnae: cnae,
+        muni_id: muniSel.value,
+        uf_id: ufSel.value,
+      });
+
+      // Log do status de cada fonte (útil para debug e defesa acadêmica)
+      console.log('[Terreno] Status das fontes:', report.sources_status);
+
+      updateReport(report);
+
+      const reportEl = $('report');
+      reportEl.classList.add('visible');
+      setTimeout(() => reportEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
+
+      btn.classList.remove('loading');
+      btn.textContent = 'Gerar novo relatório ↓';
+    } catch (e) {
+      console.error('Erro ao gerar relatório:', e);
+      btn.classList.remove('loading');
+      btn.textContent = 'Tentar novamente';
+      showFormError(`Falha: ${e.message}. Verifique se o backend está rodando em ${API_BASE}.`);
+    }
+  }
+
+  // ---------- Listeners ----------
+  $('estado').addEventListener('change', e => {
+    const ufId = e.target.value;
+    if (ufId) {
+      loadMunicipalities(ufId);
+    } else {
+      $('cidade').innerHTML = '<option>Selecione um estado primeiro</option>';
+      $('cidade').disabled = true;
+    }
+  });
+
+  $('cidade').addEventListener('change', checkFormReady);
+
+  // ---------- Init ----------
+  loadStates();
+</script>
+
+</body>
+</html>
