@@ -565,6 +565,21 @@
   .chart { width: 100%; height: 220px; }
   .chart .grid-line { stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 4; }
   .chart .axis { fill: var(--muted); font-size: 10px; font-family: 'IBM Plex Mono', monospace; }
+  .chart .axis-y { font-size: 9px; opacity: 0.7; }
+  .chart .point-value {
+    fill: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .trend-legend {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    margin-top: 6px;
+    opacity: 0.75;
+  }
   .chart .trend-line {
     stroke: var(--accent);
     stroke-width: 2;
@@ -882,9 +897,9 @@
         <h2 style="margin-top: 14px;" id="rep-title">Cafeteria · Campinas, SP</h2>
       </div>
       <div class="report-meta">
-        RELATÓRIO #TR-2026-0418<br/>
-        GERADO EM 24.ABR.2026<br/>
-        BASE DE DADOS · IBGE / BCB / RAIS
+        <span id="rep-meta-id">RELATÓRIO #—</span><br/>
+        <span id="rep-meta-data">GERADO EM —</span><br/>
+        <span id="rep-meta-fontes">BASE DE DADOS · —</span>
       </div>
     </div>
 
@@ -997,25 +1012,33 @@
           <span class="card-title">Interesse de busca · 12 meses</span>
           <span class="source-tag live" id="trendSourceTag">Google Trends · Live</span>
         </div>
-        <svg class="chart" viewBox="0 0 500 200" preserveAspectRatio="none">
+        <svg class="chart" viewBox="0 0 530 200" preserveAspectRatio="none">
+          <!-- Labels do eixo Y (escala absoluta 0-100, padrão Google Trends) -->
+          <text x="22" y="34" class="axis axis-y" text-anchor="end">100</text>
+          <text x="22" y="104" class="axis axis-y" text-anchor="end">50</text>
+          <text x="22" y="174" class="axis axis-y" text-anchor="end">0</text>
+
           <!-- grid -->
-          <line x1="0" y1="40" x2="500" y2="40" class="grid-line"/>
-          <line x1="0" y1="100" x2="500" y2="100" class="grid-line"/>
-          <line x1="0" y1="160" x2="500" y2="160" class="grid-line"/>
+          <line x1="30" y1="30" x2="530" y2="30" class="grid-line"/>
+          <line x1="30" y1="100" x2="530" y2="100" class="grid-line"/>
+          <line x1="30" y1="170" x2="530" y2="170" class="grid-line"/>
 
           <!-- area -->
-          <path id="trendArea" class="trend-area" d="M 0,140 L 40,135 L 80,130 L 120,120 L 160,115 L 200,105 L 240,95 L 280,85 L 320,80 L 360,70 L 400,65 L 440,55 L 480,45 L 500,40 L 500,200 L 0,200 Z"/>
+          <path id="trendArea" class="trend-area" d=""/>
           <!-- line -->
-          <path id="trendLine" class="trend-line" d="M 0,140 L 40,135 L 80,130 L 120,120 L 160,115 L 200,105 L 240,95 L 280,85 L 320,80 L 360,70 L 400,65 L 440,55 L 480,45"/>
+          <path id="trendLine" class="trend-line" d=""/>
 
           <!-- point -->
-          <circle id="trendPoint" class="point" cx="480" cy="45" r="4"/>
+          <circle id="trendPoint" class="point" cx="0" cy="0" r="0"/>
+          <!-- valor numérico do ponto final -->
+          <text id="trendPointValue" x="0" y="0" class="point-value" text-anchor="middle"></text>
 
-          <!-- labels -->
-          <text x="0" y="195" class="axis" id="trendLabelStart">—</text>
-          <text x="230" y="195" class="axis" id="trendLabelMid">—</text>
-          <text x="445" y="195" class="axis" id="trendLabelEnd">—</text>
+          <!-- labels eixo X (meses) -->
+          <text x="30" y="195" class="axis" id="trendLabelStart">—</text>
+          <text x="280" y="195" class="axis" id="trendLabelMid">—</text>
+          <text x="525" y="195" class="axis" id="trendLabelEnd" text-anchor="end">—</text>
         </svg>
+        <div class="trend-legend" id="trendLegend">Índice relativo · 100 = pico de busca no período · 0 = sem buscas significativas</div>
         <div class="card-sub" id="trendSub" style="margin-top: 12px;">Aguardando dados do Google Trends para o termo selecionado…</div>
       </div>
 
@@ -1235,7 +1258,7 @@
   // Em produção: https://terreno-api.seu-dominio.com/api
   // ========================================================================
 
-  const API_BASE = window.TERRENO_API_BASE || 'https://terreno-backend.onrender.com/api';
+  const API_BASE = window.TERRENO_API_BASE || 'http://localhost:8000/api';
 
   // ---------- Helpers ----------
   const $ = id => document.getElementById(id);
@@ -1383,18 +1406,60 @@
   // Guarda o último relatório gerado pra ser consumido pelo gerador de PDF
   let lastReport = null;
 
+  // Gera um ID determinístico no formato TR-YYYY-XXXX baseado em data + hash do
+  // título. Mesma combinação (CNAE+município) na mesma data dá o mesmo ID.
+  function makeReportId(date, cnaeNome, muniNome) {
+    let h = 0;
+    const seed = `${cnaeNome}|${muniNome}|${date.toISOString().slice(0, 10)}`;
+    for (let i = 0; i < seed.length; i++) {
+      h = ((h << 5) - h + seed.charCodeAt(i)) | 0;
+    }
+    const code = Math.abs(h).toString(36).toUpperCase().slice(0, 4).padStart(4, '0');
+    return `TR-${date.getFullYear()}-${code}`;
+  }
+
+  // "15.JUN.2026 · 22:48"
+  function formatReportDate(date) {
+    const meses = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = meses[date.getMonth()];
+    const yyyy = date.getFullYear();
+    const hh = String(date.getHours()).padStart(2, '0');
+    const mi = String(date.getMinutes()).padStart(2, '0');
+    return `${dd}.${mm}.${yyyy} · ${hh}:${mi}`;
+  }
+
   function updateReport(report) {
     const muniNome = $('cidade').options[$('cidade').selectedIndex].dataset.nome;
     const ufSigla = $('estado').options[$('estado').selectedIndex].dataset.sigla;
-    // Anexa muniNome e ufSigla no report pro gerador de PDF poder acessar
+    const investSel = $('investimento');
+    const investimentoLabel = investSel?.options[investSel.selectedIndex]?.text || '';
+    // Anexa muniNome, ufSigla e investimento no report pro gerador de PDF
     report.muniNome = muniNome;
     report.ufSigla = ufSigla;
+    report.investimentoLabel = investimentoLabel;
+    report.geradoEm = new Date();
+    report.relatorioId = makeReportId(report.geradoEm, report.cnae.nome, muniNome);
     lastReport = report;
 
     const ind = report.indicators;
     const cnae = report.cnae;
 
     $('rep-title').textContent = `${cnae.nome} · ${muniNome}, ${ufSigla}`;
+
+    // Metadados do cabeçalho — ID, data, fontes ativas
+    $('rep-meta-id').textContent = `RELATÓRIO #${report.relatorioId}`;
+    $('rep-meta-data').textContent = `GERADO EM ${formatReportDate(report.geradoEm)}`;
+    // Lista só as fontes que retornaram com sucesso
+    const ss = report.sources_status || {};
+    const fontesAtivas = [];
+    if (String(ss.ibge_pop || '').startsWith('ok') ||
+        String(ss.ibge_cempre || '').startsWith('ok') ||
+        String(ss.ibge_pib || '').startsWith('ok')) fontesAtivas.push('IBGE');
+    if (String(ss.bcb_macro || '').startsWith('ok')) fontesAtivas.push('BCB');
+    if (String(ss.rais_bigquery || '').startsWith('ok')) fontesAtivas.push('RAIS');
+    if (String(ss.google_trends || '').startsWith('ok')) fontesAtivas.push('GOOGLE TRENDS');
+    $('rep-meta-fontes').textContent = 'BASE DE DADOS · ' + (fontesAtivas.join(' / ') || '—');
 
     // População & derivados
     $('rep-pop').textContent = formatAbbrev(ind.populacao);
@@ -1630,24 +1695,31 @@
   function updateTrendChart(trend) {
     const points = trend.points;
     if (!points?.length) return;
-    const values = points.map(p => p.value);
-    const max = Math.max(...values);
-    const min = Math.min(...values);
-    const range = (max - min) || 1;
 
-    const width = 500;
+    // Google Trends devolve valores no índice 0-100 (relativo ao pico do período).
+    // Usamos essa escala absoluta para que o leitor entenda o nível real, em vez
+    // de uma escala dinâmica min-max sem referência.
+    const SCALE_MIN = 0;
+    const SCALE_MAX = 100;
+
+    // Área de plot dentro do viewBox (530x200):
+    //   x ∈ [30, 530]  — 30px reservados pra labels do eixo Y à esquerda
+    //   y ∈ [30, 170]  — 30px no topo (margem) e 30px embaixo pros labels de mês
+    const xStart = 30;
+    const xEnd = 530;
     const yTop = 30;
     const yBottom = 170;
+    const chartW = xEnd - xStart;
     const chartH = yBottom - yTop;
 
     const xy = points.map((p, i) => ({
-      x: (i / (points.length - 1)) * width,
-      y: yTop + (1 - (p.value - min) / range) * chartH,
+      x: xStart + (i / (points.length - 1)) * chartW,
+      y: yTop + (1 - (p.value - SCALE_MIN) / (SCALE_MAX - SCALE_MIN)) * chartH,
       ...p
     }));
 
     const pathD = xy.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
-    const areaD = pathD + ` L ${width},200 L 0,200 Z`;
+    const areaD = pathD + ` L ${xEnd},${yBottom} L ${xStart},${yBottom} Z`;
 
     const lineEl = $('trendLine');
     const areaEl = $('trendArea');
@@ -1661,9 +1733,22 @@
     lineEl.style.transition = 'stroke-dashoffset 1.6s ease-out';
     requestAnimationFrame(() => setTimeout(() => { lineEl.style.strokeDashoffset = '0'; }, 50));
 
+    // Ponto final + valor numérico
     const last = xy[xy.length - 1];
-    $('trendPoint').setAttribute('cx', last.x.toFixed(1));
-    $('trendPoint').setAttribute('cy', last.y.toFixed(1));
+    const pointEl = $('trendPoint');
+    pointEl.setAttribute('cx', last.x.toFixed(1));
+    pointEl.setAttribute('cy', last.y.toFixed(1));
+    pointEl.setAttribute('r', '4');
+
+    const valueEl = $('trendPointValue');
+    if (valueEl) {
+      valueEl.textContent = `${Math.round(last.value)}`;
+      // posiciona acima do ponto, deslocando pra esquerda se estiver na borda direita
+      const labelX = Math.min(last.x, xEnd - 16);
+      const labelY = Math.max(last.y - 8, yTop + 10);
+      valueEl.setAttribute('x', labelX.toFixed(1));
+      valueEl.setAttribute('y', labelY.toFixed(1));
+    }
 
     $('trendLabelStart').textContent = formatMonthLabel(points[0].month);
     $('trendLabelMid').textContent = formatMonthLabel(points[Math.floor(points.length / 2)].month);
@@ -1919,12 +2004,27 @@
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     setText(doc, PDF.color.muted);
-    const dataAtual = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+    const dataAtual = report.geradoEm
+      ? formatReportDate(report.geradoEm)
+      : new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+
+    // Lista de fontes que retornaram com sucesso
+    const ss = report.sources_status || {};
+    const fontesAtivas = [];
+    if (String(ss.ibge_pop || '').startsWith('ok') ||
+        String(ss.ibge_cempre || '').startsWith('ok') ||
+        String(ss.ibge_pib || '').startsWith('ok')) fontesAtivas.push('IBGE');
+    if (String(ss.bcb_macro || '').startsWith('ok')) fontesAtivas.push('Banco Central');
+    if (String(ss.rais_bigquery || '').startsWith('ok')) fontesAtivas.push('RAIS / Base dos Dados');
+    if (String(ss.google_trends || '').startsWith('ok')) fontesAtivas.push('Google Trends');
+
     const meta = [
+      `Relatório #${report.relatorioId || '—'}`,
       `Gerado em ${dataAtual}`,
+      `Investimento previsto: ${report.investimentoLabel || '—'}`,
       `População IBGE · referência ${report.populacao_ano || '—'}`,
       `CNAE 2.0 classe ${report.cnae.cnae_classe || '—'}`,
-      `Fontes: IBGE · BCB · Base dos Dados (RAIS)`,
+      `Fontes consultadas: ${fontesAtivas.join(' · ') || '—'}`,
     ];
     let yM = yT + 6;
     meta.forEach(line => {
@@ -2165,6 +2265,118 @@
     });
 
     pager.y += 2;
+  }
+
+  // Gráfico de tendência (Google Trends) — desenhado nativo via primitivas jsPDF.
+  // Usa escala absoluta 0-100 (padrão Google Trends), com 3 linhas de grade
+  // horizontais (0, 50, 100) e labels do eixo Y à esquerda.
+  function drawTrendChart(doc, pager, trend) {
+    if (!trend?.points?.length) return;
+
+    const points = trend.points;
+    pager.ensure(46);
+    const x = PDF.margin;
+    const w = PDF.pageW - PDF.margin * 2;
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    setText(doc, PDF.color.muted);
+    doc.text('INTERESSE DE BUSCA · 12 MESES', x, pager.y);
+
+    pager.y += 4;
+
+    // Área do gráfico
+    const yLabelW = 8;                          // largura reservada pros labels Y
+    const chartX = x + yLabelW;
+    const chartY = pager.y;
+    const chartW = w - yLabelW;
+    const chartH = 26;
+
+    // Background sutil do gráfico
+    setFill(doc, PDF.color.bg);
+    doc.rect(chartX, chartY, chartW, chartH, 'F');
+
+    // Linhas de grade horizontais (0, 50, 100)
+    setStroke(doc, PDF.color.line);
+    doc.setLineWidth(0.1);
+    doc.line(chartX, chartY,             chartX + chartW, chartY);             // y=100
+    doc.line(chartX, chartY + chartH/2,  chartX + chartW, chartY + chartH/2);  // y=50
+    doc.line(chartX, chartY + chartH,    chartX + chartW, chartY + chartH);    // y=0
+
+    // Labels do eixo Y
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(5.5);
+    setText(doc, PDF.color.muted);
+    doc.text('100', chartX - 1, chartY + 1.5, { align: 'right' });
+    doc.text('50',  chartX - 1, chartY + chartH/2 + 1, { align: 'right' });
+    doc.text('0',   chartX - 1, chartY + chartH, { align: 'right' });
+
+    // Calcula pontos com escala absoluta 0-100
+    const xy = points.map((p, i) => ({
+      x: chartX + (i / (points.length - 1)) * chartW,
+      y: chartY + (1 - Math.max(0, Math.min(100, p.value)) / 100) * chartH,
+      value: p.value,
+      month: p.month,
+    }));
+
+    // Linha do gráfico
+    setStroke(doc, PDF.color.accent);
+    doc.setLineWidth(0.5);
+    for (let i = 1; i < xy.length; i++) {
+      doc.line(xy[i-1].x, xy[i-1].y, xy[i].x, xy[i].y);
+    }
+
+    // Ponto final destacado
+    const last = xy[xy.length - 1];
+    setFill(doc, PDF.color.accent);
+    doc.circle(last.x, last.y, 1, 'F');
+
+    // Valor numérico do ponto final, posicionado pra não sair da área
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    setText(doc, PDF.color.accent);
+    const valueStr = `${Math.round(last.value)}`;
+    const valueW = doc.getTextWidth(valueStr);
+    const valueX = Math.min(last.x + 1.5, chartX + chartW - valueW);
+    const valueY = Math.max(last.y - 1, chartY + 3);
+    doc.text(valueStr, valueX, valueY);
+
+    pager.y = chartY + chartH + 3;
+
+    // Labels do eixo X (3 marcos: início, meio, fim)
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(5.5);
+    setText(doc, PDF.color.muted);
+    doc.text(formatMonthLabel(points[0].month), chartX, pager.y);
+    doc.text(formatMonthLabel(points[Math.floor(points.length / 2)].month),
+             chartX + chartW / 2, pager.y, { align: 'center' });
+    doc.text(formatMonthLabel(points[points.length - 1].month),
+             chartX + chartW, pager.y, { align: 'right' });
+
+    pager.y += 4;
+
+    // Legenda explicativa
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(6.5);
+    setText(doc, PDF.color.muted);
+    doc.text('Índice relativo · 100 = pico de busca no período · 0 = sem buscas significativas',
+             x, pager.y);
+
+    pager.y += 3.5;
+
+    // Buscas relacionadas (se houver)
+    if (trend.related_queries?.length) {
+      doc.setFontSize(6.5);
+      setText(doc, PDF.color.muted);
+      const txt = `Buscas relacionadas: ${trend.related_queries.slice(0, 3).join(' · ')}`;
+      const lines = wrapText(doc, txt, w);
+      lines.forEach(line => {
+        doc.text(line, x, pager.y);
+        pager.y += 3.2;
+      });
+    }
+
+    pager.y += 3;
   }
 
   function drawComparacao(doc, pager, report) {
@@ -2489,6 +2701,7 @@
     drawMacro(doc, pager, report.macro, report.indicators);
     drawAderencia(doc, pager, report.indicators);
     drawIndicadores(doc, pager, report.indicators);
+    drawTrendChart(doc, pager, report.trend);
     drawComparacao(doc, pager, report);
     drawPerfil(doc, pager, report);
 
