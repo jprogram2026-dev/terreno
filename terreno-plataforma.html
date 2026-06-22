@@ -463,6 +463,154 @@
     .download-panel { padding: 28px; flex-direction: column; align-items: flex-start; }
   }
 
+  /* Banner premium — aparece após o downloadPanel, no final do relatório */
+  .premium-banner {
+    margin-top: 24px;
+    padding: 48px 40px;
+    background: linear-gradient(135deg, #2A2520 0%, #1C1917 100%);
+    color: var(--bg);
+    position: relative;
+    overflow: hidden;
+  }
+  /* Detalhe terracotta decorativo no canto */
+  .premium-banner::before {
+    content: "";
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 240px; height: 240px;
+    background: radial-gradient(circle, rgba(184, 81, 44, 0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .premium-head {
+    max-width: 620px;
+    margin-bottom: 36px;
+    position: relative;
+  }
+  .premium-head .eyebrow { color: var(--accent); }
+  .premium-head h3 {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: "opsz" 72;
+    font-size: 32px;
+    color: var(--bg);
+    line-height: 1.1;
+  }
+  .premium-head p {
+    color: rgba(244, 239, 230, 0.72);
+    font-size: 15px;
+    line-height: 1.55;
+    margin-top: 4px;
+  }
+  .premium-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    position: relative;
+  }
+  .premium-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(217, 209, 194, 0.18);
+    padding: 30px 28px;
+    display: flex;
+    flex-direction: column;
+    transition: border-color .2s, background .2s;
+  }
+  .premium-card:hover {
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.06);
+  }
+  .premium-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--accent);
+    display: inline-block;
+    padding: 4px 10px;
+    border: 1px solid var(--accent);
+    border-radius: 100px;
+    margin-bottom: 18px;
+  }
+  .premium-card-head h4 {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: "opsz" 48;
+    font-size: 24px;
+    font-weight: 400;
+    color: var(--bg);
+    margin-bottom: 10px;
+    line-height: 1.15;
+  }
+  .premium-card-desc {
+    font-size: 14px;
+    color: rgba(244, 239, 230, 0.70);
+    line-height: 1.55;
+  }
+  .premium-features {
+    list-style: none;
+    margin-top: 22px;
+    margin-bottom: 28px;
+    flex: 1;
+  }
+  .premium-features li {
+    font-size: 13.5px;
+    color: rgba(244, 239, 230, 0.85);
+    line-height: 1.5;
+    padding-left: 18px;
+    margin-bottom: 9px;
+    position: relative;
+  }
+  .premium-features li::before {
+    content: "+";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--accent);
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .premium-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(217, 209, 194, 0.12);
+    flex-wrap: wrap;
+  }
+  .premium-price { display: flex; flex-direction: column; line-height: 1; }
+  .premium-price-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(244, 239, 230, 0.55);
+    margin-bottom: 6px;
+  }
+  .premium-price-value {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: "opsz" 72;
+    font-size: 26px;
+    color: var(--bg);
+  }
+  .premium-btn {
+    background: var(--accent);
+    color: var(--bg);
+    font-size: 13px;
+    padding: 13px 22px;
+  }
+  .premium-btn:hover:not(:disabled) {
+    background: var(--bg);
+    color: var(--ink);
+    transform: translateY(-2px);
+  }
+  @media (max-width: 860px) {
+    .premium-banner { padding: 36px 28px; }
+    .premium-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .premium-head h3 { font-size: 26px; }
+  }
+
   .report-grid {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
@@ -1126,7 +1274,7 @@
         <h3 style="margin-top: 12px; margin-bottom: 8px;">Levar este relatório com você</h3>
         <p>Exporte uma cópia em PDF com todos os indicadores, comparações e fontes desta análise.</p>
       </div>
-      <button class="btn" id="downloadPdfBtn" onclick="downloadReportPdf()">
+      <button class="btn" id="downloadPdfBtn" onclick="downloadReportPdf(event)">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -3px; margin-right: 8px;">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
           <polyline points="7 10 12 15 17 10"></polyline>
@@ -1134,6 +1282,67 @@
         </svg>
         Baixar PDF
       </button>
+    </div>
+
+    <!-- Banner Premium -->
+    <div class="premium-banner" id="premiumBanner">
+      <div class="premium-head">
+        <span class="eyebrow">Vá além</span>
+        <h3 style="margin-top: 12px; margin-bottom: 10px;">Aprofunde sua análise</h3>
+        <p>Você acabou de ler o panorama geral. Para decisões de investimento, conheça nossos formatos premium — feitos para quem quer ir do "interesse" ao "plano de ação".</p>
+      </div>
+
+      <div class="premium-grid">
+
+        <!-- Card 1: Relatório Aprofundado -->
+        <div class="premium-card">
+          <div class="premium-card-head">
+            <span class="premium-tag">Relatório premium</span>
+            <h4>Análise aprofundada</h4>
+            <p class="premium-card-desc">Vai além dos indicadores agregados e responde à pergunta-chave: <em>vale a pena abrir aqui?</em></p>
+          </div>
+          <ul class="premium-features">
+            <li>Comparação entre múltiplos municípios concorrentes</li>
+            <li>Cenários otimista, realista e conservador de receita</li>
+            <li>Mapa de concorrentes diretos com CNPJ, porte e endereço</li>
+            <li>Estimativa de ticket médio e payback do investimento</li>
+            <li>Análise de bairros do município (Censo 2022)</li>
+            <li>Revisão por analista — entrega em até 24h por email</li>
+          </ul>
+          <div class="premium-footer">
+            <div class="premium-price">
+              <span class="premium-price-label">a partir de</span>
+              <span class="premium-price-value">R$ 49</span>
+            </div>
+            <button class="btn premium-btn" onclick="downloadReportPdf(event)">Acessar versão premium →</button>
+          </div>
+        </div>
+
+        <!-- Card 2: Minicursos -->
+        <div class="premium-card">
+          <div class="premium-card-head">
+            <span class="premium-tag">Minicurso</span>
+            <h4>Aprenda na prática</h4>
+            <p class="premium-card-desc">Aulas curtas e diretas para quem vai abrir o negócio — do MEI ao primeiro faturamento.</p>
+          </div>
+          <ul class="premium-features">
+            <li>Do MEI ao primeiro faturamento</li>
+            <li>Tributação descomplicada (Simples Nacional na prática)</li>
+            <li>Marketing local: Instagram e Google Meu Negócio</li>
+            <li>Fluxo de caixa para micro e pequenas empresas</li>
+            <li>Vídeos, exercícios e modelos de planilha</li>
+            <li>Certificado + grupo de suporte</li>
+          </ul>
+          <div class="premium-footer">
+            <div class="premium-price">
+              <span class="premium-price-label">a partir de</span>
+              <span class="premium-price-value">R$ 197</span>
+            </div>
+            <button class="btn premium-btn" onclick="downloadReportPdf(event)">Conhecer programa →</button>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 </section>
@@ -1823,9 +2032,10 @@
   // layout próprio inspirado no relatório do site.
   // ============================================================
 
-  async function downloadReportPdf() {
-    const btn = $('downloadPdfBtn');
-    const panel = $('downloadPanel');
+  async function downloadReportPdf(event) {
+    // Pega o botão clicado pelo evento — funciona tanto pro "Baixar PDF" gratuito
+    // quanto pros botões dos cards premium. Fallback no botão principal se evento ausente.
+    const btn = event?.currentTarget || $('downloadPdfBtn');
 
     if (!lastReport) {
       alert('Gere um relatório antes de baixar.');
