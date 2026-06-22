@@ -603,6 +603,14 @@
     color: var(--ink);
     transform: translateY(-2px);
   }
+  /* Estado 'Em breve' — discreto, sem ação, sem hover */
+  .premium-btn-soon {
+    background: transparent;
+    color: rgba(244, 239, 230, 0.5);
+    border: 1px solid rgba(217, 209, 194, 0.18);
+    cursor: not-allowed;
+  }
+  .premium-btn-soon:hover { transform: none; }
   @media (max-width: 860px) {
     .premium-banner { padding: 36px 28px; }
     .premium-grid { grid-template-columns: 1fr; }
@@ -1314,7 +1322,7 @@
               <span class="premium-price-label">a partir de</span>
               <span class="premium-price-value">R$ 49</span>
             </div>
-            <button class="btn premium-btn" onclick="downloadReportPdf(event)">Acessar versão premium →</button>
+            <button class="btn premium-btn" data-tier="premium" onclick="downloadReportPdf(event)">Acessar versão premium →</button>
           </div>
         </div>
 
@@ -1338,7 +1346,7 @@
               <span class="premium-price-label">a partir de</span>
               <span class="premium-price-value">R$ 197</span>
             </div>
-            <button class="btn premium-btn" onclick="downloadReportPdf(event)">Conhecer programa →</button>
+            <button class="btn premium-btn premium-btn-soon" disabled>Em breve</button>
           </div>
         </div>
 
@@ -2036,6 +2044,8 @@
     // Pega o botão clicado pelo evento — funciona tanto pro "Baixar PDF" gratuito
     // quanto pros botões dos cards premium. Fallback no botão principal se evento ausente.
     const btn = event?.currentTarget || $('downloadPdfBtn');
+    // tier vem de data-tier no botão; default 'free' (botão gratuito)
+    const tier = btn?.dataset?.tier === 'premium' ? 'premium' : 'free';
 
     if (!lastReport) {
       alert('Gere um relatório antes de baixar.');
@@ -2051,10 +2061,10 @@
     btn.innerHTML = 'Gerando PDF…';
 
     try {
-      const filename = pdfFilename(lastReport);
+      const filename = pdfFilename(lastReport, tier);
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-      drawReportPdf(doc, lastReport);
+      drawReportPdf(doc, lastReport, tier);
       doc.save(filename);
     } catch (e) {
       console.error('Falha ao gerar PDF:', e);
@@ -2065,14 +2075,15 @@
     }
   }
 
-  function pdfFilename(report) {
+  function pdfFilename(report, tier = 'free') {
     const titulo = `${report.cnae.nome} ${report.muniNome} ${report.ufSigla}`;
     const slug = titulo
       .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-zA-Z0-9]+/g, '-')
       .toLowerCase()
       .replace(/^-|-$/g, '');
-    return `terreno-${slug}-${new Date().toISOString().slice(0, 10)}.pdf`;
+    const prefix = tier === 'premium' ? 'terreno-premium' : 'terreno';
+    return `${prefix}-${slug}-${new Date().toISOString().slice(0, 10)}.pdf`;
   }
 
   // ============================================================
@@ -2081,6 +2092,7 @@
   const PDF = {
     pageW: 210, pageH: 297,
     margin: 18,
+    currentTier: 'free',          // setado no início de drawReportPdf
     // Cores em RGB (jsPDF não aceita hex direto em alguns métodos)
     color: {
       ink:       [28, 25, 23],     // #1C1917 — texto principal
@@ -2097,7 +2109,25 @@
       greenSoft: [107, 125, 95],
       amber:     [198, 138, 46],   // #C68A2E — atenção
       red:       [168, 65, 46],    // #A8412E — risco
-    }
+    },
+    // Paleta alternativa usada na "edição premium" — inverte a hierarquia
+    // (fundo escuro, texto claro) mantendo o terracotta como acento.
+    PALETTE_PREMIUM: {
+      ink:       [244, 239, 230],  // cream — texto principal
+      inkSoft:   [217, 209, 194],  // cream médio
+      muted:     [168, 160, 146],  // cinza-bege
+      mutedDim:  [120, 113, 104],  // cinza escuro
+      line:      [70, 65, 58],     // linha escura
+      lineSoft:  [50, 45, 40],     // linha mais escura
+      accent:    [198, 95, 58],    // terracotta um pouco mais vibrante p/ fundo escuro
+      accentDeep:[160, 70, 38],
+      bg:        [42, 37, 32],     // #2A2520 — bg dos cards
+      bgPage:    [28, 25, 23],     // #1C1917 — bg da página
+      green:     [134, 154, 119],  // verde mais claro p/ contraste
+      greenSoft: [167, 184, 153],
+      amber:     [217, 165, 78],   // amber mais vibrante
+      red:       [212, 110, 88],   // red mais claro
+    },
   };
 
   // ------------------------------------------------------------
@@ -2170,6 +2200,10 @@
       },
       newPage: function() {
         doc.addPage();
+        // Pinta o fundo dessa nova página com a cor da paleta atual.
+        // No premium isso é essencial; no free pinta branco (sem efeito visual).
+        setFill(doc, PDF.color.bgPage);
+        doc.rect(0, 0, PDF.pageW, PDF.pageH, 'F');
         this.pageNum++;
         this.y = PDF.margin + 14;
         drawPageFooter(doc, this.pageNum);
@@ -2204,12 +2238,18 @@
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7);
     setText(doc, PDF.color.muted);
-    doc.text('RELATÓRIO DE ESTUDO DE MERCADO', PDF.pageW - PDF.margin, PDF.margin + 3, { align: 'right' });
+    const headerLabel = PDF.currentTier === 'premium'
+      ? 'EDIÇÃO PREMIUM · RELATÓRIO DE ESTUDO DE MERCADO'
+      : 'RELATÓRIO DE ESTUDO DE MERCADO';
+    doc.text(headerLabel, PDF.pageW - PDF.margin, PDF.margin + 3, { align: 'right' });
 
-    // Eyebrow
+    // Eyebrow — destaca tier nas premium
     doc.setFontSize(7);
     setText(doc, PDF.color.muted);
-    doc.text('RELATÓRIO PRELIMINAR', x, PDF.margin + 22);
+    const eyebrow = PDF.currentTier === 'premium'
+      ? 'RELATÓRIO PREMIUM · ANÁLISE APROFUNDADA'
+      : 'RELATÓRIO PRELIMINAR';
+    doc.text(eyebrow, x, PDF.margin + 22);
 
     // Título principal
     doc.setFont('times', 'normal');
@@ -2772,12 +2812,12 @@
 
     pager.ensure(10);
 
-    // Bolinha com glifo
+    // Bolinha com glifo (glifo sempre branco — contrasta tanto com fundo claro quanto escuro)
     setFill(doc, color);
     doc.circle(x + 2, pager.y - 0.5, 1.8, 'F');
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7);
-    setText(doc, PDF.color.bgPage);
+    setText(doc, [255, 255, 255]);
     doc.text(glyph, x + 2, pager.y + 0.7, { align: 'center' });
 
     // Título do sinal
@@ -2912,33 +2952,52 @@
   // ------------------------------------------------------------
   // Orquestrador principal
   // ------------------------------------------------------------
-  function drawReportPdf(doc, report) {
-    // Página 1 — capa
-    drawCover(doc, report);
-    drawPageFooter(doc, 1);
+  function drawReportPdf(doc, report, tier = 'free') {
+    // Aplica paleta premium se necessário. Mantém referência da original
+    // pra restaurar no final — drawXxx funções leem de PDF.color global.
+    const originalColor = PDF.color;
+    if (tier === 'premium') {
+      PDF.color = { ...PDF.color, ...PDF.PALETTE_PREMIUM };
+    }
+    PDF.currentTier = tier;
 
-    const pager = makePager(doc);
-    pager.y = 90;  // começa abaixo dos metadados da capa
+    try {
+      // Pinta o fundo da primeira página (importante no tema premium escuro;
+      // no free é a cor padrão branca, mas pintamos pra consistência visual)
+      setFill(doc, PDF.color.bgPage);
+      doc.rect(0, 0, PDF.pageW, PDF.pageH, 'F');
 
-    // Seção 01 — Análise de mercado
-    drawSectionTitle(doc, pager, '01 · Análise de mercado', 'Indicadores principais');
+      // Página 1 — capa
+      drawCover(doc, report);
+      drawPageFooter(doc, 1);
 
-    drawLeitura(doc, pager, report);
-    drawMacro(doc, pager, report.macro, report.indicators);
-    drawAderencia(doc, pager, report.indicators);
-    drawIndicadores(doc, pager, report.indicators);
-    drawTrendChart(doc, pager, report.trend);
-    drawComparacao(doc, pager, report);
-    drawPerfil(doc, pager, report);
+      const pager = makePager(doc);
+      pager.y = 90;  // começa abaixo dos metadados da capa
 
-    // Seção 02 — Sinais
-    drawSignals(doc, pager, report);
+      // Seção 01 — Análise de mercado
+      drawSectionTitle(doc, pager, '01 · Análise de mercado', 'Indicadores principais');
 
-    // Seção 03 — Próximos passos
-    drawNextSteps(doc, pager);
+      drawLeitura(doc, pager, report);
+      drawMacro(doc, pager, report.macro, report.indicators);
+      drawAderencia(doc, pager, report.indicators);
+      drawIndicadores(doc, pager, report.indicators);
+      drawTrendChart(doc, pager, report.trend);
+      drawComparacao(doc, pager, report);
+      drawPerfil(doc, pager, report);
 
-    // Seção 04 — Metodologia
-    drawSources(doc, pager, report);
+      // Seção 02 — Sinais
+      drawSignals(doc, pager, report);
+
+      // Seção 03 — Próximos passos
+      drawNextSteps(doc, pager);
+
+      // Seção 04 — Metodologia
+      drawSources(doc, pager, report);
+    } finally {
+      // Restaura paleta original — importante porque PDF.color é global
+      PDF.color = originalColor;
+      PDF.currentTier = 'free';
+    }
   }
   // ---------- Orquestração ----------
   async function generateReport() {
