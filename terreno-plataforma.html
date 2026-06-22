@@ -1258,7 +1258,18 @@
   // Em produção: https://terreno-api.seu-dominio.com/api
   // ========================================================================
 
-  const API_BASE = window.TERRENO_API_BASE || 'http://localhost:8000/api';
+  // Detecta automaticamente o ambiente:
+  //   - Em localhost (dev local): usa o backend rodando no PC em :8000
+  //   - Em qualquer outro domínio (GitHub Pages, etc): usa o backend público no Render
+  // Pode ser sobrescrito definindo window.TERRENO_API_BASE antes deste script.
+  const API_BASE = (() => {
+    if (window.TERRENO_API_BASE) return window.TERRENO_API_BASE;
+    const host = window.location.hostname;
+    if (host === 'localhost' || host === '127.0.0.1' || host === '') {
+      return 'http://localhost:8000/api';
+    }
+    return 'https://terreno-backend.onrender.com/api';
+  })();
 
   // ---------- Helpers ----------
   const $ = id => document.getElementById(id);
