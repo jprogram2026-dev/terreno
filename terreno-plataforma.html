@@ -1258,7 +1258,7 @@
   // Em produção: https://terreno-api.seu-dominio.com/api
   // ========================================================================
 
-  const API_BASE = window.TERRENO_API_BASE || 'https://terreno-backend.onrender.com/api';
+  const API_BASE = window.TERRENO_API_BASE || 'http://localhost:8000/api';
 
   // ---------- Helpers ----------
   const $ = id => document.getElementById(id);
@@ -1743,9 +1743,11 @@
     const valueEl = $('trendPointValue');
     if (valueEl) {
       valueEl.textContent = `${Math.round(last.value)}`;
-      // posiciona acima do ponto, deslocando pra esquerda se estiver na borda direita
-      const labelX = Math.min(last.x, xEnd - 16);
-      const labelY = Math.max(last.y - 8, yTop + 10);
+      // Centraliza horizontalmente no ponto, e deixa abaixo dele.
+      // Se ficar perto da base do gráfico, volta pra cima pra não cortar.
+      const labelX = Math.max(xStart + 8, Math.min(last.x, xEnd - 8));
+      let labelY = last.y + 14;
+      if (labelY > yBottom - 3) labelY = last.y - 6;
       valueEl.setAttribute('x', labelX.toFixed(1));
       valueEl.setAttribute('y', labelY.toFixed(1));
     }
@@ -2331,14 +2333,17 @@
     setFill(doc, PDF.color.accent);
     doc.circle(last.x, last.y, 1, 'F');
 
-    // Valor numérico do ponto final, posicionado pra não sair da área
+    // Valor numérico do ponto final — posicionado abaixo, centralizado no ponto.
+    // Se ficar muito perto da base do gráfico, volta pra cima.
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7);
     setText(doc, PDF.color.accent);
     const valueStr = `${Math.round(last.value)}`;
     const valueW = doc.getTextWidth(valueStr);
-    const valueX = Math.min(last.x + 1.5, chartX + chartW - valueW);
-    const valueY = Math.max(last.y - 1, chartY + 3);
+    let valueX = last.x - valueW / 2;
+    valueX = Math.max(chartX, Math.min(valueX, chartX + chartW - valueW));
+    let valueY = last.y + 4;
+    if (valueY > chartY + chartH - 0.5) valueY = last.y - 1.5;
     doc.text(valueStr, valueX, valueY);
 
     pager.y = chartY + chartH + 3;
