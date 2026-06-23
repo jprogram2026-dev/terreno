@@ -46,7 +46,7 @@
     overflow-x: hidden;
   }
 
-  /* Gradients ambientais radiais (já existentes — dão profundidade) */
+  /* Gradients ambientais radiais (sutis — dão profundidade sem peso visual) */
   body::before {
     content: "";
     position: fixed;
@@ -56,24 +56,6 @@
       radial-gradient(circle at 15% 10%, rgba(184, 81, 44, 0.05), transparent 45%),
       radial-gradient(circle at 85% 80%, rgba(62, 77, 58, 0.06), transparent 45%);
     z-index: 0;
-  }
-
-  /* Textura de papel/ruído sobre toda a página.
-     SVG inline via fractalNoise — não pesa o load porque é gerado pelo navegador.
-     mix-blend-mode: multiply faz ele escurecer levemente cores claras
-     sem afetar cores escuras. pointer-events: none preserva interatividade. */
-  body::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='7' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0'/></filter><rect width='240' height='240' filter='url(%23n)'/></svg>");
-    opacity: 0.32;
-    mix-blend-mode: multiply;
-    z-index: 9999;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    body::after { opacity: 0.2; }
   }
 
   .container {
