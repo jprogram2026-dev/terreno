@@ -4,6 +4,14 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Terreno — Estudo de mercado para novos negócios no Brasil</title>
+<meta name="description" content="Plataforma gratuita que agrega dados públicos brasileiros (IBGE, BCB, RAIS, Google Trends) para gerar relatórios de viabilidade de novos negócios por município e setor.">
+<meta name="theme-color" content="#B8512C">
+
+<!-- Favicon SVG inline — reproduz a marca circular do Terreno (terracotta + anel cream).
+     Funciona em qualquer densidade de tela porque é vetor; sem arquivo externo. -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23B8512C'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23F4EFE6'/%3E%3C/svg%3E">
+<!-- Apple touch icon (home tela do iOS) — versão com fundo, pra ficar com a marca contida -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%23F4EFE6'/%3E%3Ccircle cx='90' cy='90' r='54' fill='%23B8512C'/%3E%3Ccircle cx='90' cy='90' r='22' fill='%23F4EFE6'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -38,15 +46,34 @@
     overflow-x: hidden;
   }
 
+  /* Gradients ambientais radiais (já existentes — dão profundidade) */
   body::before {
     content: "";
     position: fixed;
     inset: 0;
     pointer-events: none;
     background-image:
-      radial-gradient(circle at 15% 10%, rgba(184, 81, 44, 0.04), transparent 40%),
-      radial-gradient(circle at 85% 80%, rgba(62, 77, 58, 0.05), transparent 40%);
+      radial-gradient(circle at 15% 10%, rgba(184, 81, 44, 0.05), transparent 45%),
+      radial-gradient(circle at 85% 80%, rgba(62, 77, 58, 0.06), transparent 45%);
     z-index: 0;
+  }
+
+  /* Textura de papel/ruído sobre toda a página.
+     SVG inline via fractalNoise — não pesa o load porque é gerado pelo navegador.
+     mix-blend-mode: multiply faz ele escurecer levemente cores claras
+     sem afetar cores escuras. pointer-events: none preserva interatividade. */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='7' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0'/></filter><rect width='240' height='240' filter='url(%23n)'/></svg>");
+    opacity: 0.32;
+    mix-blend-mode: multiply;
+    z-index: 9999;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    body::after { opacity: 0.2; }
   }
 
   .container {
@@ -105,29 +132,52 @@
     font-weight: 500;
     font-size: 22px;
     letter-spacing: -0.02em;
+    cursor: default;
   }
   .brand-mark {
     width: 22px; height: 22px;
     border-radius: 50%;
     background: var(--accent);
     position: relative;
+    transition: transform .5s cubic-bezier(0.22, 1, 0.36, 1);
   }
+  .brand:hover .brand-mark { transform: scale(1.08) rotate(45deg); }
   .brand-mark::after {
     content: "";
     position: absolute;
     inset: 5px;
     border-radius: 50%;
     background: var(--bg);
+    transition: inset .5s cubic-bezier(0.22, 1, 0.36, 1);
   }
+  .brand:hover .brand-mark::after { inset: 7px; }
   .nav-links { display: flex; gap: 32px; }
   .nav-links a {
     color: var(--ink-soft);
     text-decoration: none;
     font-size: 14px;
     font-weight: 400;
-    transition: color .2s;
+    position: relative;
+    padding-bottom: 4px;
+    transition: color .3s ease;
+  }
+  .nav-links a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 1px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: right center;
+    transition: transform .45s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .nav-links a:hover { color: var(--accent); }
+  .nav-links a:hover::after {
+    transform: scaleX(1);
+    transform-origin: left center;
+  }
   @media (max-width: 720px) { .nav-links { display: none; } }
 
   /* Hero */
@@ -166,9 +216,19 @@
     letter-spacing: 0.01em;
     cursor: pointer;
     border-radius: 0;
-    transition: all .2s;
+    position: relative;
+    overflow: hidden;
+    transition: background .35s cubic-bezier(0.22, 1, 0.36, 1),
+                color .35s cubic-bezier(0.22, 1, 0.36, 1),
+                transform .35s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow .35s cubic-bezier(0.22, 1, 0.36, 1);
   }
-  .btn:hover:not(:disabled) { background: var(--accent); transform: translateY(-2px); }
+  .btn:hover:not(:disabled) {
+    background: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px -12px rgba(184, 81, 44, 0.45);
+  }
+  .btn:active:not(:disabled) { transform: translateY(-1px); }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .btn-ghost {
     background: transparent;
@@ -176,7 +236,12 @@
     border: 1px solid var(--ink);
     padding: 15px 27px;
   }
-  .btn-ghost:hover { background: var(--ink); color: var(--bg); transform: translateY(-2px); }
+  .btn-ghost:hover {
+    background: var(--ink);
+    color: var(--bg);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px -12px rgba(28, 25, 23, 0.35);
+  }
 
   .hero-side { padding-bottom: 8px; }
   .hero-quote {
@@ -255,6 +320,15 @@
     background: var(--bg);
     padding: 36px 32px;
     position: relative;
+    border: 1px solid transparent;
+    transition: transform .5s cubic-bezier(0.22, 1, 0.36, 1),
+                border-color .5s ease,
+                box-shadow .5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .step:hover {
+    transform: translateY(-3px);
+    border-color: rgba(184, 81, 44, 0.18);
+    box-shadow: 0 22px 40px -28px rgba(28, 25, 23, 0.25);
   }
   .step-num {
     font-family: 'IBM Plex Mono', monospace;
@@ -304,9 +378,13 @@
     background-repeat: no-repeat;
     background-position: right 4px center;
     padding-right: 20px;
+    transition: border-color .35s ease, box-shadow .35s ease;
   }
   .field input { background-image: none; padding-right: 0; }
-  .field select:focus, .field input:focus { border-color: var(--accent); }
+  .field select:focus, .field input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 8px 16px -14px rgba(184, 81, 44, 0.5);
+  }
   @media (max-width: 720px) {
     .simulator { padding: 28px; }
     .form-grid { grid-template-columns: 1fr; }
@@ -415,6 +493,26 @@
   @keyframes fade-up {
     from { opacity: 0; transform: translateY(16px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Fade-in on scroll — elementos com [data-reveal] aparecem quando entram na viewport.
+     Ativado pelo IntersectionObserver no JS. Stagger opcional via [data-reveal-delay]. */
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity .9s cubic-bezier(0.22, 1, 0.36, 1),
+                transform .9s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+  }
+  [data-reveal].is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  [data-reveal-delay="1"] { transition-delay: .08s; }
+  [data-reveal-delay="2"] { transition-delay: .16s; }
+  [data-reveal-delay="3"] { transition-delay: .24s; }
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal] { opacity: 1; transform: none; transition: none; }
   }
 
   .report-header {
@@ -847,6 +945,15 @@
   .source {
     background: var(--bg);
     padding: 24px 28px;
+    border: 1px solid transparent;
+    transition: transform .5s cubic-bezier(0.22, 1, 0.36, 1),
+                border-color .4s ease,
+                box-shadow .5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .source:hover {
+    transform: translateY(-2px);
+    border-color: rgba(184, 81, 44, 0.16);
+    box-shadow: 0 18px 32px -24px rgba(28, 25, 23, 0.2);
   }
   .source-name {
     font-family: 'Fraunces', serif;
@@ -967,23 +1074,23 @@
 <!-- HOW IT WORKS -->
 <section id="como-funciona">
   <div class="container">
-    <div class="section-head">
+    <div class="section-head" data-reveal>
       <span class="eyebrow">01 · Método</span>
       <h2>Três passos, zero achismo.</h2>
       <p>Em vez de prever um número mágico de "chance de sucesso", a plataforma devolve indicadores objetivos sobre o contexto do negócio — para que a decisão final continue sendo sua, mas agora informada.</p>
     </div>
     <div class="steps">
-      <div class="step">
+      <div class="step" data-reveal>
         <div class="step-num">PASSO 01</div>
         <h3>Você descreve a ideia</h3>
         <p>Tipo de negócio (CNAE), cidade, investimento previsto. Cinco campos, dois minutos.</p>
       </div>
-      <div class="step">
+      <div class="step" data-reveal data-reveal-delay="1">
         <div class="step-num">PASSO 02</div>
         <h3>Cruzamos dados públicos</h3>
         <p>IBGE, Receita Federal, POF, RAIS e tendências de busca. Tudo aberto, auditável, gratuito na origem.</p>
       </div>
-      <div class="step">
+      <div class="step" data-reveal data-reveal-delay="2">
         <div class="step-num">PASSO 03</div>
         <h3>Você recebe o relatório</h3>
         <p>Sinais de oportunidade, pontos de atenção, e orientações gerais — com links para profissionais caso queira prosseguir.</p>
@@ -995,7 +1102,7 @@
 <!-- SIMULATOR -->
 <section id="simular" style="padding-top: 40px;">
   <div class="container">
-    <div class="section-head">
+    <div class="section-head" data-reveal>
       <span class="eyebrow">02 · Simulação</span>
       <h2>Teste uma ideia <span class="italic">agora</span>.</h2>
       <p>Este é um protótipo acadêmico. Os dados exibidos são ilustrativos e servem para demonstrar o formato do relatório final.</p>
@@ -1358,7 +1465,7 @@
 <!-- NEXT STEPS -->
 <section style="padding-top: 40px;">
   <div class="container">
-    <div class="section-head">
+    <div class="section-head" data-reveal>
       <span class="eyebrow">03 · Próximos passos</span>
       <h2>Se decidir seguir, <span class="italic">por onde começar</span>.</h2>
       <p>Orientações gerais, informativas, baseadas no perfil típico de negócios do porte simulado. Não substituem um profissional.</p>
@@ -1394,39 +1501,39 @@
 <!-- METHODOLOGY -->
 <section id="metodologia">
   <div class="container">
-    <div class="section-head">
+    <div class="section-head" data-reveal>
       <span class="eyebrow">04 · Metodologia</span>
       <h2>De onde vêm os dados.</h2>
       <p>Transparência total sobre fontes, periodicidade de atualização e limitações conhecidas. Tudo o que a plataforma usa é público.</p>
     </div>
 
     <div class="sources-grid">
-      <div class="source">
+      <div class="source" data-reveal>
         <div class="source-name">IBGE Localidades <span class="source-tag live" style="margin-left: 8px;">Integrado</span></div>
         <div class="source-desc">Lista oficial de estados e municípios brasileiros via API REST <code style="font-family: 'IBM Plex Mono', monospace; font-size: 11px;">servicodados.ibge.gov.br/api/v1/localidades</code>.</div>
         <div class="source-limit">Cache no servidor IBGE — atualização rara.</div>
       </div>
-      <div class="source">
+      <div class="source" data-reveal>
         <div class="source-name">IBGE SIDRA · Estimativas de População <span class="source-tag live" style="margin-left: 8px;">Integrado</span></div>
         <div class="source-desc">Tabela 6579 / variável 9324 — população residente estimada por município. Atualizada anualmente.</div>
         <div class="source-limit">Defasagem de até 12 meses até a próxima publicação.</div>
       </div>
-      <div class="source">
+      <div class="source" data-reveal>
         <div class="source-name">IBGE SIDRA · CEMPRE <span class="source-tag live" style="margin-left: 8px;">Integrado</span></div>
         <div class="source-desc">Tabela 9418 — Cadastro Central de Empresas. Número de empresas, pessoal ocupado total e salários por município e CNAE 2.0 (até nível de classe). Substitui tanto o dump da Receita quanto a RAIS para o escopo desta plataforma.</div>
         <div class="source-limit">IDs de variáveis e categorias CNAE são descobertos automaticamente via endpoint <code style="font-family: 'IBM Plex Mono', monospace; font-size: 11px;">/metadados</code>.</div>
       </div>
-      <div class="source">
+      <div class="source" data-reveal>
         <div class="source-name">IBGE SIDRA · PIB Municipal <span class="source-tag live" style="margin-left: 8px;">Integrado</span></div>
         <div class="source-desc">Tabela 5938 — Produto Interno Bruto e PIB per capita por município, atualização anual.</div>
         <div class="source-limit">Defasagem típica de 2 anos entre o ano de referência e a publicação.</div>
       </div>
-      <div class="source">
+      <div class="source" data-reveal>
         <div class="source-name">Banco Central · SGS <span class="source-tag live" style="margin-left: 8px;">Integrado</span></div>
         <div class="source-desc">Séries temporais oficiais do BCB: Selic (432), IPCA mensal (433) e USD/BRL (1). Consumo via <code style="font-family: 'IBM Plex Mono', monospace; font-size: 11px;">api.bcb.gov.br/dados/serie</code>. IPCA acumulado calculado no front-end (produto dos fatores mensais).</div>
         <div class="source-limit">IPCA tem defasagem de ~30 dias; Selic atualiza após cada Copom.</div>
       </div>
-      <div class="source">
+      <div class="source" data-reveal>
         <div class="source-name">Google Trends <span class="source-tag live" style="margin-left: 8px;">Integrado</span></div>
         <div class="source-desc">Interesse de busca pelo termo do setor nos últimos 12 meses, com filtro regional por UF. Acessado via biblioteca <code style="font-family: 'IBM Plex Mono', monospace; font-size: 11px;">pytrends</code> no backend (impossível direto do navegador por CORS).</div>
         <div class="source-limit">API não-oficial — sujeita a bloqueios temporários do Google em uso intenso.</div>
@@ -3053,6 +3160,27 @@
   });
 
   $('cidade').addEventListener('change', checkFormReady);
+
+  // ---------- Fade-in on scroll ----------
+  // Aplica .is-visible a elementos com [data-reveal] quando entram na viewport.
+  // Funciona em todos os navegadores modernos. Para os antigos / SSR, os elementos
+  // ficam visíveis por default (graceful degradation via CSS no [data-reveal]).
+  function initReveals() {
+    if (!('IntersectionObserver' in window)) {
+      document.querySelectorAll('[data-reveal]').forEach(el => el.classList.add('is-visible'));
+      return;
+    }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('[data-reveal]').forEach(el => io.observe(el));
+  }
+  initReveals();
 
   // ---------- Init ----------
   loadStates();
