@@ -420,7 +420,100 @@
   .field-status.err { color: var(--red); }
 
   /* Source tags */
-  .source-tag {
+  /* Tooltips explicativos — ícone discreto com "?" que abre uma caixa
+     escura ao passar o mouse (desktop) ou tocar (mobile). Texto vem do
+     atributo data-tooltip pra não poluir o JS. */
+  .tt {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    margin-left: 6px;
+    border-radius: 50%;
+    background: var(--line);
+    color: var(--muted);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: help;
+    user-select: none;
+    vertical-align: middle;
+    transition: background .25s ease, color .25s ease;
+  }
+  .tt::before { content: "?"; pointer-events: none; }
+  .tt:hover { background: var(--accent); color: var(--bg); }
+
+  /* Caixa do tooltip — aparece ACIMA do ícone */
+  .tt::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: var(--ink);
+    color: var(--bg);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 0;
+    text-transform: none;
+    text-align: left;
+    padding: 10px 14px;
+    border-radius: 4px;
+    width: max-content;
+    max-width: 280px;
+    white-space: normal;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease, transform .25s ease;
+    z-index: 100;
+    box-shadow: 0 12px 28px -10px rgba(28, 25, 23, 0.4);
+  }
+  /* Setinha indicando o ícone */
+  .tt-arrow {
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border: 5px solid transparent;
+    border-top-color: var(--ink);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease;
+  }
+  .tt:hover::after,
+  .tt:focus::after,
+  .tt.tt-open::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .tt:hover .tt-arrow,
+  .tt:focus .tt-arrow,
+  .tt.tt-open .tt-arrow {
+    opacity: 1;
+  }
+  /* Quando o tooltip está perto da borda direita, desloca pra esquerda */
+  .tt[data-tt-align="right"]::after {
+    left: auto;
+    right: 0;
+    transform: translateY(4px);
+  }
+  .tt[data-tt-align="right"]:hover::after,
+  .tt[data-tt-align="right"]:focus::after,
+  .tt[data-tt-align="right"].tt-open::after {
+    transform: translateY(0);
+  }
+  @media (max-width: 720px) {
+    .tt::after { max-width: 220px; font-size: 11px; padding: 8px 12px; }
+  }
+
+
     font-family: 'IBM Plex Mono', monospace;
     font-size: 9px;
     letter-spacing: 0.12em;
@@ -1199,22 +1292,22 @@
         </div>
         <div class="macro-grid">
           <div class="macro-item">
-            <span class="macro-label">Taxa Selic (meta)</span>
+            <span class="macro-label">Taxa Selic (meta)<span class="tt" data-tooltip="Taxa básica de juros da economia, definida pelo Banco Central. Quanto mais alta, mais caro fica financiar o investimento inicial via crédito bancário."><span class="tt-arrow"></span></span></span>
             <span class="macro-value accent" id="rep-selic">—</span>
             <span class="macro-note" id="rep-selic-note">Custo do crédito para financiar o investimento inicial</span>
           </div>
           <div class="macro-item">
-            <span class="macro-label">IPCA · 12 meses</span>
+            <span class="macro-label">IPCA · 12 meses<span class="tt" data-tooltip="Inflação acumulada dos últimos 12 meses. Reflete quanto os preços de produtos e serviços subiram — impacta diretamente custos de insumos, aluguel e o poder de compra dos clientes."><span class="tt-arrow"></span></span></span>
             <span class="macro-value" id="rep-ipca">—</span>
             <span class="macro-note" id="rep-ipca-note">Inflação acumulada — impacta insumos e aluguel</span>
           </div>
           <div class="macro-item">
-            <span class="macro-label">USD / BRL</span>
+            <span class="macro-label">USD / BRL<span class="tt" data-tooltip="Cotação atual do dólar em relação ao real. Importante se o negócio precisa importar equipamentos, insumos ou pagar licenças em moeda estrangeira."><span class="tt-arrow"></span></span></span>
             <span class="macro-value" id="rep-usd">—</span>
             <span class="macro-note">Relevante se o negócio depende de importados</span>
           </div>
           <div class="macro-item">
-            <span class="macro-label">Leitura macro</span>
+            <span class="macro-label">Leitura macro<span class="tt" data-tooltip="Avaliação automática do contexto econômico atual: 'Favorável' indica condições positivas pra abrir negócio agora; 'Atenção' sinaliza cautela com juros altos ou inflação acima da meta." data-tt-align="right"><span class="tt-arrow"></span></span></span>
             <span class="macro-value" id="rep-macro-read" style="font-size: 24px; font-style: italic;">—</span>
             <span class="macro-note">Síntese contextual para abrir negócio agora</span>
           </div>
@@ -1224,7 +1317,7 @@
       <!-- Key card: overall read -->
       <div class="card span-8">
         <div class="card-head">
-          <span class="card-title">Leitura geral do contexto</span>
+          <span class="card-title">Leitura geral do contexto<span class="tt" data-tooltip="Resumo automático combinando saturação de mercado, demanda e contexto econômico. É o ponto de partida pra entender se vale a pena seguir com a análise mais fundo."><span class="tt-arrow"></span></span></span>
           <span class="pill mid"><span class="pill-dot"></span>Moderado</span>
         </div>
         <p style="font-family: 'Fraunces', serif; font-size: 28px; line-height: 1.25;  color: var(--ink); max-width: 600px;" id="rep-lead">
@@ -1238,7 +1331,7 @@
       <!-- Big number: demographic fit -->
       <div class="card span-4">
         <div class="card-head">
-          <span class="card-title">Aderência demográfica</span>
+          <span class="card-title">Aderência demográfica<span class="tt" data-tooltip="Mede quão bem o município se encaixa no perfil típico desse setor. Cruza tamanho do mercado, renda média e densidade urbana. 0 = perfil desfavorável; 100 = perfil ideal."><span class="tt-arrow"></span></span></span>
           <span class="source-tag live">IBGE · Live</span>
         </div>
         <div class="card-big accent" id="rep-demog">78<span style="font-size: 24px; color: var(--muted);">/100</span></div>
@@ -1248,14 +1341,14 @@
       <!-- Indicators -->
       <div class="card span-6">
         <div class="card-head">
-          <span class="card-title">Indicadores do mercado local</span>
+          <span class="card-title">Indicadores do mercado local<span class="tt" data-tooltip="Métricas que descrevem como o setor está localmente: o quanto há de concorrência, a tendência de buscas pela atividade, o tamanho da força de trabalho e a sazonalidade da demanda."><span class="tt-arrow"></span></span></span>
           <span class="source-tag estimated" id="indicTag">CEMPRE · Live</span>
         </div>
         <div class="indicator-list">
 
           <div class="indicator">
             <div class="indicator-name">
-              Densidade de concorrentes
+              Densidade de concorrentes<span class="tt" data-tooltip="Número de empresas ativas do mesmo CNAE por 10 mil habitantes. 'Alta' indica mercado saturado (difícil de competir); 'Baixa' sugere oportunidade ou demanda fraca."><span class="tt-arrow"></span></span>
               <small id="rep-density-sub">CNPJs ativos no mesmo CNAE por 10 mil habitantes</small>
             </div>
             <span class="pill mid" id="rep-density-pill"><span class="pill-dot"></span>Moderada</span>
@@ -1264,7 +1357,7 @@
 
           <div class="indicator" style="margin-top: 10px;">
             <div class="indicator-name">
-              Tendência de interesse (Google Trends)
+              Tendência de interesse (Google Trends)<span class="tt" data-tooltip="Variação do interesse de busca pelo termo do setor nos últimos 12 meses. 'Crescente' = setor ganhando atenção; 'Decrescente' = perdendo. Útil pra antecipar demanda."><span class="tt-arrow"></span></span>
               <small id="rep-trend-sub">Variação de buscas pelo termo nos últimos 12 meses</small>
             </div>
             <span class="pill pos" id="rep-trend-pill"><span class="pill-dot"></span>Crescente</span>
@@ -1273,7 +1366,7 @@
 
           <div class="indicator" style="margin-top: 10px;">
             <div class="indicator-name">
-              Pessoal ocupado no setor
+              Pessoal ocupado no setor<span class="tt" data-tooltip="Quantos trabalhadores estão empregados no setor naquele município, segundo o CEMPRE/IBGE. Indica a maturidade e o porte médio das empresas locais."><span class="tt-arrow"></span></span>
               <small id="rep-empr-sub">Total de trabalhadores no setor no município (CEMPRE)</small>
             </div>
             <span class="pill pos" id="rep-empr-pill"><span class="pill-dot"></span>Média</span>
@@ -1282,7 +1375,7 @@
 
           <div class="indicator" style="margin-top: 10px;">
             <div class="indicator-name">
-              Sazonalidade
+              Sazonalidade<span class="tt" data-tooltip="Variação da demanda ao longo do ano. 'Baixa' = demanda estável mês a mês; 'Alta' = picos e vales fortes (planeje fluxo de caixa, estoque e contratação para os meses mais fracos)."><span class="tt-arrow"></span></span>
               <small id="rep-sazon-sub">Variância das buscas mensais — indicador derivado</small>
             </div>
             <span class="pill low" id="rep-sazon-pill"><span class="pill-dot"></span>Baixa</span>
@@ -1295,7 +1388,7 @@
       <!-- Search trend chart -->
       <div class="card span-6">
         <div class="card-head">
-          <span class="card-title">Interesse de busca · 12 meses</span>
+          <span class="card-title">Interesse de busca · 12 meses<span class="tt" data-tooltip="Histórico de buscas no Google pelo termo do setor naquele estado nos últimos 12 meses. Útil pra identificar tendência (alta/baixa) e padrão sazonal."><span class="tt-arrow"></span></span></span>
           <span class="source-tag live" id="trendSourceTag">Google Trends · Live</span>
         </div>
         <svg class="chart" viewBox="0 0 530 200" preserveAspectRatio="none">
@@ -1331,7 +1424,7 @@
       <!-- Comparação município × estado × Brasil (CEMPRE) -->
       <div class="card span-6">
         <div class="card-head">
-          <span class="card-title">Comparação geográfica · densidade do setor</span>
+          <span class="card-title">Comparação geográfica · densidade do setor<span class="tt" data-tooltip="Mostra quantas empresas existem por 10 mil habitantes em três escalas: município, estado e Brasil. Se o município tem mais que a média nacional, indica maior concorrência; se tem menos, pode ser oportunidade — ou falta de demanda."><span class="tt-arrow"></span></span></span>
           <span class="source-tag live">CEMPRE · Live</span>
         </div>
         <div id="cempreCompare" class="compare-list">
@@ -1345,37 +1438,37 @@
       <!-- Demographic match -->
       <div class="card span-6">
         <div class="card-head">
-          <span class="card-title">Perfil socioeconômico local</span>
+          <span class="card-title">Perfil socioeconômico local<span class="tt" data-tooltip="Dados estruturais do município: tamanho da população, riqueza gerada (PIB), número de empresas do setor e estimativa de mercado potencial. Servem de base pra todos os outros indicadores."><span class="tt-arrow"></span></span></span>
           <span class="source-tag live">IBGE · Live</span>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
           <div>
-            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.1em;">POPULAÇÃO ESTIMADA</div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.1em;">POPULAÇÃO ESTIMADA<span class="tt" data-tooltip="Estimativa do IBGE do número de habitantes do município no ano de referência. Base para calcular densidade de mercado e potencial de clientes."><span class="tt-arrow"></span></span></div>
             <div class="card-big" id="rep-pop" style="font-size: 36px; margin-top: 8px;">—</div>
             <div class="card-sub" id="rep-pop-sub">Último dado disponível no IBGE</div>
           </div>
           <div>
-            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.1em;">PIB PER CAPITA</div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.1em;">PIB PER CAPITA<span class="tt" data-tooltip="Riqueza média gerada por habitante no ano. Indicador aproximado de poder de compra: PIB per capita mais alto significa população com mais renda disponível pra consumir."><span class="tt-arrow"></span></span></div>
             <div class="card-big" id="rep-pib-percap" style="font-size: 36px; margin-top: 8px;">—</div>
             <div class="card-sub" id="rep-pib-percap-sub">SIDRA tabela 5938 · último ano disponível</div>
           </div>
           <div>
-            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.1em;">PIB MUNICIPAL</div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.1em;">PIB MUNICIPAL<span class="tt" data-tooltip="Soma de toda a riqueza produzida no município em um ano. Mede o tamanho da economia local — útil pra comparar municípios entre si."><span class="tt-arrow"></span></span></div>
             <div class="card-big" id="rep-pib-total" style="font-size: 36px; margin-top: 8px;">—</div>
             <div class="card-sub">Produto interno bruto a preços correntes</div>
           </div>
           <div>
-            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.1em;">EMPRESAS NO SETOR</div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.1em;">EMPRESAS NO SETOR<span class="tt" data-tooltip="Total de empresas formalmente registradas e ativas no CNAE escolhido, naquele município, segundo o CEMPRE/IBGE. Esses são seus concorrentes diretos."><span class="tt-arrow"></span></span></div>
             <div class="card-big" id="rep-estab" style="font-size: 36px; margin-top: 8px;">—</div>
             <div class="card-sub">CEMPRE/IBGE — empresas ativas no CNAE</div>
           </div>
           <div>
-            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.1em;">HABITANTES POR EMPRESA</div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.1em;">HABITANTES POR EMPRESA<span class="tt" data-tooltip="Quantos habitantes existem por empresa do setor, em média. Quanto maior, menos saturado o mercado. Ex.: 500 hab/empresa = pra cada concorrente, há 500 clientes potenciais teóricos."><span class="tt-arrow"></span></span></div>
             <div class="card-big" id="rep-ratio" style="font-size: 36px; margin-top: 8px;">—</div>
             <div class="card-sub">Indicador de saturação setorial</div>
           </div>
           <div>
-            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.1em;">MERCADO POTENCIAL</div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.1em;">MERCADO POTENCIAL<span class="tt" data-tooltip="Estimativa do número de pessoas no município que potencialmente consomem esse tipo de produto/serviço (cálculo: população × fator de consumo típico do setor)."><span class="tt-arrow"></span></span></div>
             <div class="card-big" id="rep-potential" style="font-size: 36px; margin-top: 8px;">—</div>
             <div class="card-sub">Clientes potenciais estimados via população</div>
           </div>
@@ -1385,7 +1478,7 @@
       <!-- Opportunities -->
       <div class="card span-6">
         <div class="card-head">
-          <span class="card-title">Sinais de oportunidade</span>
+          <span class="card-title">Sinais de oportunidade<span class="tt" data-tooltip="Conclusões positivas geradas automaticamente a partir dos indicadores acima — fatores favoráveis pra abrir o negócio nesse contexto específico."><span class="tt-arrow"></span></span></span>
           <span class="source-tag live">Derivado dos dados</span>
         </div>
         <ul class="signal-list" id="oportunidadesList">
@@ -1396,7 +1489,7 @@
       <!-- Risks -->
       <div class="card span-6">
         <div class="card-head">
-          <span class="card-title">Pontos de atenção</span>
+          <span class="card-title">Pontos de atenção<span class="tt" data-tooltip="Riscos e desafios detectados automaticamente nos indicadores. Não significa que você não deve abrir — sinaliza pontos que merecem planejamento extra." data-tt-align="right"><span class="tt-arrow"></span></span></span>
           <span class="source-tag live">Derivado dos dados</span>
         </div>
         <ul class="signal-list" id="riscosList">
@@ -1497,19 +1590,19 @@
     <div class="next-steps">
       <div class="step-card">
         <span class="tag">FORMALIZAÇÃO</span>
-        <h3 style="margin-top: 12px;">Modelo jurídico</h3>
+        <h3 style="margin-top: 12px;">Modelo jurídico<span class="tt" data-tooltip="Tipo de empresa adequado ao porte: MEI (Microempreendedor Individual) para faturamento baixo, ME (Microempresa) ou EPP (Empresa de Pequeno Porte) conforme o negócio cresce. Define burocracia, impostos e responsabilidades."><span class="tt-arrow"></span></span></h3>
         <p>Para faturamento anual previsto abaixo de R$ 81 mil, o MEI costuma ser o ponto de partida mais simples. Acima disso, ME ou EPP sob Simples Nacional são os caminhos usuais.</p>
         <span class="mono" style="font-size: 11px; color: var(--muted);">FONTE · PORTAL DO EMPREENDEDOR, LC 123/2006</span>
       </div>
       <div class="step-card">
         <span class="tag">TRIBUTAÇÃO</span>
-        <h3 style="margin-top: 12px;">Regime tributário</h3>
+        <h3 style="margin-top: 12px;">Regime tributário<span class="tt" data-tooltip="Forma como a empresa paga impostos. Simples Nacional unifica vários tributos em uma única alíquota — costuma ser o mais simples e vantajoso pra pequenos negócios. Lucro Presumido e Lucro Real são pra empresas maiores ou específicas."><span class="tt-arrow"></span></span></h3>
         <p>Simples Nacional tende a ser vantajoso no faixa de faturamento deste porte. Lucro Presumido e Lucro Real só passam a valer a pena em cenários específicos — compare com um contador antes de decidir.</p>
         <span class="mono" style="font-size: 11px; color: var(--muted);">FONTE · RECEITA FEDERAL — SIMULADOR SIMPLES</span>
       </div>
       <div class="step-card">
         <span class="tag">APOIO PROFISSIONAL</span>
-        <h3 style="margin-top: 12px;">Quando procurar especialistas</h3>
+        <h3 style="margin-top: 12px;">Quando procurar especialistas<span class="tt" data-tooltip="Profissionais que valem o investimento: contador para regularidade fiscal, advogado para contratos, e o SEBRAE para orientação gratuita sobre gestão e crédito." data-tt-align="right"><span class="tt-arrow"></span></span></h3>
         <p>Contador: recomendado a partir da formalização como ME. Advogado: importante em contratos de ponto comercial, sociedade ou franquia. SEBRAE: oferece consultoria gratuita em muitos municípios.</p>
         <span class="mono" style="font-size: 11px; color: var(--muted);">REDE DE PARCEIROS · EM CONSTRUÇÃO</span>
       </div>
@@ -3183,6 +3276,30 @@
   });
 
   $('cidade').addEventListener('change', checkFormReady);
+
+  // ---------- Tooltips ----------
+  // Em mobile, hover não funciona — então em telas touch convertemos clique
+  // em "toggle" do tooltip. Fechamos ao clicar fora também.
+  function initTooltips() {
+    // Detecta dispositivos primary-touch
+    const isTouchDevice = window.matchMedia('(hover: none)').matches;
+    if (!isTouchDevice) return;
+
+    document.addEventListener('click', (e) => {
+      const tt = e.target.closest('.tt');
+      if (tt) {
+        e.preventDefault();
+        // Fecha outros tooltips abertos
+        document.querySelectorAll('.tt.tt-open').forEach(el => {
+          if (el !== tt) el.classList.remove('tt-open');
+        });
+        tt.classList.toggle('tt-open');
+      } else {
+        document.querySelectorAll('.tt.tt-open').forEach(el => el.classList.remove('tt-open'));
+      }
+    });
+  }
+  initTooltips();
 
   // ---------- Fade-in on scroll ----------
   // Aplica .is-visible a elementos com [data-reveal] quando entram na viewport.
