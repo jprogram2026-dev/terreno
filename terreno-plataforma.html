@@ -496,13 +496,16 @@
   .tt::before { content: "?"; pointer-events: none; }
   .tt:hover { background: var(--accent); color: var(--bg); }
 
-  /* Caixa do tooltip — aparece ACIMA do ícone */
+  /* Caixa do tooltip — aparece ACIMA do ícone.
+     A variável --tt-shift é setada via JS pra deslocar o balão lateralmente
+     quando ele ficaria cortado pela borda da viewport (típico em mobile).
+     Default 0 = centralizado. */
   .tt::after {
     content: attr(data-tooltip);
     position: absolute;
     bottom: calc(100% + 10px);
     left: 50%;
-    transform: translateX(-50%) translateY(4px);
+    transform: translateX(calc(-50% + var(--tt-shift, 0px))) translateY(4px);
     background: var(--ink);
     color: var(--bg);
     font-family: 'IBM Plex Sans', sans-serif;
@@ -523,7 +526,8 @@
     z-index: 100;
     box-shadow: 0 12px 28px -10px rgba(28, 25, 23, 0.4);
   }
-  /* Setinha indicando o ícone */
+  /* Setinha indicando o ícone — fica fixa no ícone, não acompanha o shift do balão.
+     Visual: a flecha aponta pro "?", e o balão pode estar deslocado. */
   .tt-arrow {
     position: absolute;
     bottom: calc(100% + 4px);
@@ -541,26 +545,15 @@
   .tt:focus::after,
   .tt.tt-open::after {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
+    transform: translateX(calc(-50% + var(--tt-shift, 0px))) translateY(0);
   }
   .tt:hover .tt-arrow,
   .tt:focus .tt-arrow,
   .tt.tt-open .tt-arrow {
     opacity: 1;
   }
-  /* Quando o tooltip está perto da borda direita, desloca pra esquerda */
-  .tt[data-tt-align="right"]::after {
-    left: auto;
-    right: 0;
-    transform: translateY(4px);
-  }
-  .tt[data-tt-align="right"]:hover::after,
-  .tt[data-tt-align="right"]:focus::after,
-  .tt[data-tt-align="right"].tt-open::after {
-    transform: translateY(0);
-  }
   @media (max-width: 720px) {
-    .tt::after { max-width: 220px; font-size: 11px; padding: 8px 12px; }
+    .tt::after { max-width: 240px; font-size: 11px; padding: 8px 12px; }
   }
 
   .source-tag {
@@ -1357,7 +1350,7 @@
             <span class="macro-note">Relevante se o negócio depende de importados</span>
           </div>
           <div class="macro-item">
-            <span class="macro-label">Leitura macro<span class="tt" data-tooltip="Avaliação automática do contexto econômico atual: 'Favorável' indica condições positivas pra abrir negócio agora; 'Atenção' sinaliza cautela com juros altos ou inflação acima da meta." data-tt-align="right"><span class="tt-arrow"></span></span></span>
+            <span class="macro-label">Leitura macro<span class="tt" data-tooltip="Avaliação automática do contexto econômico atual: 'Favorável' indica condições positivas pra abrir negócio agora; 'Atenção' sinaliza cautela com juros altos ou inflação acima da meta."><span class="tt-arrow"></span></span></span>
             <span class="macro-value" id="rep-macro-read" style="font-size: 24px; font-style: italic;">—</span>
             <span class="macro-note">Síntese contextual para abrir negócio agora</span>
           </div>
@@ -1539,7 +1532,7 @@
       <!-- Risks -->
       <div class="card span-6">
         <div class="card-head">
-          <span class="card-title">Pontos de atenção<span class="tt" data-tooltip="Riscos e desafios detectados automaticamente nos indicadores. Não significa que você não deve abrir — sinaliza pontos que merecem planejamento extra." data-tt-align="right"><span class="tt-arrow"></span></span></span>
+          <span class="card-title">Pontos de atenção<span class="tt" data-tooltip="Riscos e desafios detectados automaticamente nos indicadores. Não significa que você não deve abrir — sinaliza pontos que merecem planejamento extra."><span class="tt-arrow"></span></span></span>
           <span class="source-tag live">Derivado dos dados</span>
         </div>
         <ul class="signal-list" id="riscosList">
@@ -1664,7 +1657,7 @@
       </div>
       <div class="step-card">
         <span class="tag">APOIO PROFISSIONAL</span>
-        <h3 style="margin-top: 12px;">Quando procurar especialistas<span class="tt" data-tooltip="Profissionais que valem o investimento: contador para regularidade fiscal, advogado para contratos, e o SEBRAE para orientação gratuita sobre gestão e crédito." data-tt-align="right"><span class="tt-arrow"></span></span></h3>
+        <h3 style="margin-top: 12px;">Quando procurar especialistas<span class="tt" data-tooltip="Profissionais que valem o investimento: contador para regularidade fiscal, advogado para contratos, e o SEBRAE para orientação gratuita sobre gestão e crédito."><span class="tt-arrow"></span></span></h3>
         <p>Contador: recomendado a partir da formalização como ME. Advogado: importante em contratos de ponto comercial, sociedade ou franquia. SEBRAE: oferece consultoria gratuita em muitos municípios.</p>
         <span class="mono" style="font-size: 11px; color: var(--muted);">REDE DE PARCEIROS · EM CONSTRUÇÃO</span>
       </div>
@@ -3452,25 +3445,77 @@
   $('cidade').addEventListener('change', checkFormReady);
 
   // ---------- Tooltips ----------
-  // Em mobile, hover não funciona — então em telas touch convertemos clique
-  // em "toggle" do tooltip. Fechamos ao clicar fora também.
+  // Posiciona automaticamente cada tooltip pra caber dentro da viewport.
+  // No mobile (sem hover), também faz toggle por clique.
+  //
+  // Como funciona o ajuste de borda:
+  //   - O balão tem max-width 280px (240 em mobile).
+  //   - Se o centro do ícone "?" está a menos de halfTip pixels de uma borda,
+  //     o balão sairia da tela. Aí calculamos um shift pra deslocá-lo.
+  //   - O shift é aplicado via CSS custom property --tt-shift (ver CSS).
+  //   - A seta continua apontando pro ícone (não se move), só o balão desloca.
   function initTooltips() {
-    // Detecta dispositivos primary-touch
-    const isTouchDevice = window.matchMedia('(hover: none)').matches;
-    if (!isTouchDevice) return;
+    const MARGIN = 12;            // distância mínima da borda da viewport (px)
+    const MAX_TIP_DESKTOP = 280;
+    const MAX_TIP_MOBILE = 240;
 
-    document.addEventListener('click', (e) => {
-      const tt = e.target.closest('.tt');
-      if (tt) {
-        e.preventDefault();
-        // Fecha outros tooltips abertos
-        document.querySelectorAll('.tt.tt-open').forEach(el => {
-          if (el !== tt) el.classList.remove('tt-open');
-        });
-        tt.classList.toggle('tt-open');
-      } else {
-        document.querySelectorAll('.tt.tt-open').forEach(el => el.classList.remove('tt-open'));
+    function adjustTooltip(trigger) {
+      const rect = trigger.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const maxTip = vw <= 720 ? MAX_TIP_MOBILE : MAX_TIP_DESKTOP;
+      // Considera o limite real: o que for menor entre max-width do balão e
+      // (vw - 2*margin). Assim em telas estreitas o cálculo continua certo.
+      const tipWidth = Math.min(maxTip, vw - MARGIN * 2);
+      const halfTip = tipWidth / 2;
+      const triggerCenter = rect.left + rect.width / 2;
+
+      let shift = 0;
+      const leftEdge = triggerCenter - halfTip;
+      const rightEdge = triggerCenter + halfTip;
+
+      if (leftEdge < MARGIN) {
+        // Balão sairia pela esquerda → desloca pra direita
+        shift = MARGIN - leftEdge;
+      } else if (rightEdge > vw - MARGIN) {
+        // Balão sairia pela direita → desloca pra esquerda
+        shift = -(rightEdge - (vw - MARGIN));
       }
+      trigger.style.setProperty('--tt-shift', shift + 'px');
+    }
+
+    // Ajusta o tooltip antes de aparecer — funciona pra desktop (hover/focus)
+    // e mobile (touch). 'true' captura na fase de captura pra rodar cedo.
+    document.addEventListener('pointerenter', (e) => {
+      const tt = e.target.closest?.('.tt');
+      if (tt) adjustTooltip(tt);
+    }, true);
+    document.addEventListener('focusin', (e) => {
+      const tt = e.target.closest?.('.tt');
+      if (tt) adjustTooltip(tt);
+    }, true);
+
+    // Em dispositivos sem hover (telas touch), converte clique em toggle.
+    const isTouchDevice = window.matchMedia('(hover: none)').matches;
+    if (isTouchDevice) {
+      document.addEventListener('click', (e) => {
+        const tt = e.target.closest('.tt');
+        if (tt) {
+          e.preventDefault();
+          adjustTooltip(tt);
+          document.querySelectorAll('.tt.tt-open').forEach(el => {
+            if (el !== tt) el.classList.remove('tt-open');
+          });
+          tt.classList.toggle('tt-open');
+        } else {
+          document.querySelectorAll('.tt.tt-open').forEach(el => el.classList.remove('tt-open'));
+        }
+      });
+    }
+
+    // Se o usuário gira o celular ou redimensiona, reseta todos os shifts.
+    // O próximo hover/click recalcula com a nova largura.
+    window.addEventListener('resize', () => {
+      document.querySelectorAll('.tt').forEach(t => t.style.removeProperty('--tt-shift'));
     });
   }
   initTooltips();
