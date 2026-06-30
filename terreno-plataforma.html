@@ -15,7 +15,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 <style>
   :root {
     --bg: #F4EFE6;
@@ -418,6 +421,53 @@
   }
   .field-status.ok { color: var(--green); }
   .field-status.err { color: var(--red); }
+
+  /* Mapa de calor — container Leaflet integrado ao card */
+  .places-map {
+    height: 420px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    position: relative;
+    overflow: hidden;
+  }
+  .places-map.loading::after {
+    content: "Carregando mapa…";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: var(--bg);
+    z-index: 500;
+  }
+  .places-map .leaflet-container {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: #F5F1E8;
+  }
+  /* Customiza controles do Leaflet pra combinar com a estética cream/terracotta */
+  .leaflet-control-attribution {
+    background: rgba(244, 239, 230, 0.85) !important;
+    font-size: 10px !important;
+    color: var(--muted) !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+  }
+  .leaflet-control-attribution a {
+    color: var(--accent-deep) !important;
+  }
+  .leaflet-control-zoom a {
+    background: var(--bg-raised) !important;
+    color: var(--ink) !important;
+    border-color: var(--line) !important;
+  }
+  .leaflet-control-zoom a:hover {
+    background: var(--accent) !important;
+    color: var(--bg) !important;
+  }
 
   /* Source tags */
   /* Tooltips explicativos — ícone discreto com "?" que abre uma caixa
@@ -1496,6 +1546,18 @@
           <li style="color: var(--muted); font-size: 13px; list-style: none;">Aguardando análise…</li>
         </ul>
       </div>
+
+      <!-- Mapa de calor — concentração de empresas -->
+      <div class="card span-12" id="placesMapCard">
+        <div class="card-head">
+          <span class="card-title">Mapa de concentração de concorrentes<span class="tt" data-tooltip="Mostra visualmente onde estão concentradas as empresas do mesmo setor no município. Áreas mais avermelhadas indicam maior densidade de concorrentes. Fonte: OpenStreetMap (cobertura colaborativa, varia por região)."><span class="tt-arrow"></span></span></span>
+          <span class="source-tag estimated" id="mapaSourceTag">OpenStreetMap · Carregando…</span>
+        </div>
+        <div id="placesMap" class="places-map loading"></div>
+        <div class="card-sub" id="placesMapSub" style="margin-top: 14px;">
+          Aguardando dados do OpenStreetMap…
+        </div>
+      </div>
     </div>
 
     <!-- Download do relatório -->
@@ -2262,6 +2324,110 @@
   // o PDF do zero: texto vetorial real, cores controladas,
   // layout próprio inspirado no relatório do site.
   // ============================================================
+
+  // ---------- Mapa de calor (OpenStreetMap) ----------
+  // Instância do mapa fica em escopo de módulo pra a gente conseguir
+  // destruir antes de reinicializar (cada novo relatório recria o mapa).
+  let mapInstance = null;
+
+  async function loadMapaCalor(ufId, muniId, cnaeKey) {
+    const container = $('placesMap');
+    const sub = $('placesMapSub');
+    const tag = $('mapaSourceTag');
+    if (!container || !sub || !tag) return;
+
+    container.classList.add('loading');
+    tag.textContent = 'OpenStreetMap · Carregando…';
+    tag.className = 'source-tag estimated';
+
+    // Destrói mapa anterior (necessário ao gerar relatório novo na mesma sessão)
+    if (mapInstance) {
+      mapInstance.remove();
+      mapInstance = null;
+    }
+    container.innerHTML = '';
+
+    try {
+      const url = `${API_BASE}/mapa-empresas?uf_id=${ufId}&muni_id=${muniId}&cnae=${cnaeKey}`;
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+
+      container.classList.remove('loading');
+
+      // Sem centro = município não localizado no Nominatim
+      if (!data.center) {
+        sub.textContent = data.coverage_note || 'Não foi possível localizar o município no OpenStreetMap.';
+        tag.textContent = 'Indisponível';
+        tag.className = 'source-tag simulated';
+        return;
+      }
+
+      // Inicializa o mapa
+      mapInstance = L.map('placesMap', {
+        scrollWheelZoom: false,           // evita scroll-jacking
+        zoomControl: true,
+        attributionControl: true,
+      }).setView(data.center, 12);
+
+      // Tiles CartoDB Positron (claro/minimalista — combina com a paleta cream)
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors · © <a href="https://carto.com/">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 19,
+      }).addTo(mapInstance);
+
+      const places = data.places || [];
+
+      if (places.length === 0) {
+        sub.innerHTML = `<strong>Nenhum estabelecimento mapeado nesta região.</strong> A cobertura do OpenStreetMap varia por município — em cidades menores muitos negócios ainda não foram catalogados por voluntários. Isso não significa ausência de mercado.`;
+        tag.textContent = 'Sem dados OSM';
+        tag.className = 'source-tag simulated';
+        return;
+      }
+
+      // Cria mapa de calor com paleta terracotta do site
+      const heatPoints = places.map(p => [p.lat, p.lon, 0.6]);
+      L.heatLayer(heatPoints, {
+        radius: 30,
+        blur: 25,
+        maxZoom: 16,
+        max: 1.0,
+        gradient: {
+          0.0: 'rgba(184, 81, 44, 0)',
+          0.3: 'rgba(232, 175, 110, 0.6)',
+          0.55: 'rgba(220, 120, 70, 0.8)',
+          0.8: 'rgba(184, 81, 44, 0.95)',
+          1.0: 'rgba(138, 59, 31, 1.0)',
+        },
+      }).addTo(mapInstance);
+
+      // Ajusta zoom pra abranger todos os pontos (com padding)
+      if (places.length > 1) {
+        const bounds = L.latLngBounds(places.map(p => [p.lat, p.lon]));
+        mapInstance.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
+      }
+
+      // Texto descritivo embaixo do mapa
+      const cempreTotal = lastReport?.cempre?.municipio?.empresas;
+      let comparisonText = '';
+      if (cempreTotal && cempreTotal > 0) {
+        const pct = Math.round((places.length / cempreTotal) * 100);
+        comparisonText = ` <em>(${pct}% dos ${formatNumber(cempreTotal)} registrados no CEMPRE)</em>`;
+      }
+
+      sub.innerHTML = `<strong>${places.length}</strong> ${places.length === 1 ? 'estabelecimento' : 'estabelecimentos'} mapeados no OpenStreetMap${comparisonText}. Áreas mais avermelhadas indicam maior concentração de concorrentes diretos. A cobertura do OSM é colaborativa — o total real pode ser maior, especialmente em municípios pequenos.`;
+
+      tag.textContent = 'OpenStreetMap · Live';
+      tag.className = 'source-tag live';
+    } catch (e) {
+      console.error('Erro ao carregar mapa:', e);
+      container.classList.remove('loading');
+      sub.textContent = 'Não foi possível carregar o mapa de calor neste momento.';
+      tag.textContent = 'Indisponível';
+      tag.className = 'source-tag simulated';
+    }
+  }
 
   async function downloadReportPdf(event) {
     // Pega o botão clicado pelo evento — funciona tanto pro "Baixar PDF" gratuito
@@ -3249,6 +3415,14 @@
       console.log('[Terreno] Status das fontes:', report.sources_status);
 
       updateReport(report);
+
+      // Carrega o mapa de calor em paralelo (não bloqueia o relatório).
+      // Pode demorar 5-15s porque Overpass às vezes é lento e o frontend
+      // não deve travar esperando.
+      const ufId = $('estado').value;
+      const muniId = $('cidade').value;
+      const cnaeKey = $('cnae').value;
+      loadMapaCalor(ufId, muniId, cnaeKey);
 
       const reportEl = $('report');
       reportEl.classList.add('visible');
